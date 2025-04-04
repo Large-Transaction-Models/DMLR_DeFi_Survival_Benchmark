@@ -1,0 +1,361 @@
+---
+title: "DeFi Survival Data Pipeline Example"
+author: "Hanzhen Qin(qinh2)"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  pdf_document: 
+    latex_engine: xelatex
+  html_document:
+    toc: true
+    number_sections: true
+    df_print: paged
+---
+
+```{r, include=FALSE}
+# Check and install required R packages
+if (!require("conflicted")) {
+  install.packages("conflicted", dependencies = TRUE)
+  library(conflicted)
+}
+
+# Set default CRAN repository
+local({
+  r <- getOption("repos")
+  r["CRAN"] <- "http://cran.r-project.org"
+  options(repos = r)
+})
+
+# Define the list of required packages
+required_packages <- c(
+  "rmarkdown", "tidyverse", "stringr", "ggbiplot", "pheatmap", 
+  "caret", "survival", "survminer", "ggplot2", 
+  "kableExtra", "rpart", "glmnet", "data.table", "reshape2", "pROC", 
+  "pander", "readr", "dplyr", "ROSE", "xgboost", "parallel", "reticulate"
+)
+
+# Loop through the package list and install missing packages
+for (pkg in required_packages) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg, dependencies = TRUE)
+    library(pkg, character.only = TRUE)
+  }
+}
+
+# Handle function name conflicts
+conflict_prefer("slice", "dplyr")
+conflict_prefer("filter", "dplyr")
+
+# Set knitr options for R Markdown
+knitr::opts_chunk$set(echo = TRUE)
+
+# Rename dplyr functions to avoid conflicts with other packages
+select <- dplyr::select
+rename <- dplyr::rename
+summarize <- dplyr::summarize
+group_by <- dplyr::group_by
+```
+
+# Survival Data Pipeline
+
+```{r, include=FALSE}
+source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Classification/data_processing.R")
+source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Classification/model_evaluation_visual.R")
+source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Classification/classification_models.R")
+source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Classification/deep_learning_models.R")
+source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Classification/get_classification_cutoff.R")
+source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R")
+```
+
+```{r}
+# set the indexEvent and outcomeEvent
+indexEvent = "borrow"
+outcomeEvent = "repay"
+
+# load the corresponding train and test data
+get_train_test_data(indexEvent, outcomeEvent)
+
+classification_cutoff = get_classification_cutoff(indexEvent, outcomeEvent)
+
+# Here we set useScaling, useOneHotEncoding, and usePCA to TRUE, and set classificationTask = TRUE
+processed <- preprocess(train, test,
+                        useScaling = TRUE,
+                        useOneHotEncoding = TRUE,
+                        usePCA = TRUE,
+                        pcaExplainedVar = 0.9,
+                        classificationTask = TRUE,
+                        classificationCutoff = classification_cutoff)
+# preprocess returns a list, the first element is the processed training data, and the second is the test data
+train_data <- processed[[1]]
+test_data <- processed[[2]]
+```
+
+```{r}
+# If you want to watch the percentages between "Yes" and "No" label, run this code.
+get_percentage(train_data, indexEvent, outcomeEvent)
+```
+
+```{r}
+lr_return = logistic_regression(train_data, test_data)
+accuracy_lr_dataframe = lr_return$metrics_lr_dataframe
+accuracy_lr = lr_return$metrics_lr
+model_version_lr = lr_return$model_version
+```
+
+```{r}
+en_return = elastic_net(train_data, test_data)
+accuracy_en_dataframe = en_return$metrics_en_dataframe
+accuracy_en = en_return$metrics_en
+model_version_en = en_return$model_version
+```
+
+```{r}
+xgb_return = XG_Boost(train_data, test_data)
+accuracy_xgb_dataframe = xgb_return$metrics_xgb_dataframe
+accuracy_xgb = xgb_return$metrics_xgb
+model_version_xgb = xgb_return$model_version
+```
+
+```{r}
+dh_return = deephit_model(train_data, test_data)
+accuracy_dh_dataframe = dh_return$metrics_dh_dataframe
+accuracy_dh = dh_return$metrics_dh
+model_version_dh = dh_return$model_version
+```
+
+```{r}
+processed <- preprocess(train, test,
+                        useScaling = TRUE,
+                        useOneHotEncoding = TRUE,
+                        usePCA = FALSE,
+                        pcaExplainedVar = 0.9,
+                        classificationTask = TRUE,
+                        classificationCutoff = classification_cutoff)
+# preprocess returns a list, the first element is the processed training data, and the second is the test data
+train_data <- processed[[1]]
+test_data <- processed[[2]]
+```
+
+```{r}
+dlc_return = deepLearning_classification_model(train_data, test_data)
+accuracy_dlc_dataframe = dlc_return$metrics_dlc_dataframe
+accuracy_dlc = dlc_return$metrics_dlc
+model_version_dlc = dlc_return$model_version
+```
+
+```{r}
+processed <- preprocess(train, test,
+                        useScaling = FALSE,
+                        useOneHotEncoding = TRUE,
+                        usePCA = FALSE,
+                        pcaExplainedVar = 0.9,
+                        classificationTask = TRUE,
+                        classificationCutoff = classification_cutoff)
+# preprocess returns a list, the first element is the processed training data, and the second is the test data
+train_data <- processed[[1]]
+test_data <- processed[[2]]
+```
+
+```{r}
+dt_return = decision_tree(train_data, test_data)
+accuracy_dt_dataframe = dt_return$metrics_dt_dataframe
+accuracy_dt = dt_return$metrics_dt
+model_version_dt = dt_return$model_version
+```
+
+```{r}
+# compare all the classification models
+metrics_list_BR <- list(
+  list(accuracy_lr, "Logistic Regression"),
+  list(accuracy_dt, "Decision Tree"),
+  list(accuracy_xgb, "XGBoost"),
+  list(accuracy_en, "Elastic Net"),
+  list(accuracy_dh, "DeepHit"),
+  list(accuracy_dlc, "DeepLearningClassifier")
+)
+accuracy_comparison_plot(metrics_list_BR)
+```
+
+```{r}
+model_version_list_BR <- list(
+  list(model_version_lr, "Logistic Regression"),
+  list(model_version_dt, "Decision Tree"),
+  list(model_version_xgb, "XGBoost"),
+  list(model_version_en, "Elastic Net"),
+  list(model_version_dh, "DeepHit"),
+  list(model_version_dlc, "DeepLearningClassifier")
+)
+```
+
+```{r}
+# Show the final dataframe for all classification models,
+# including the classification model name, accuracy, data combination name.
+data_name_BR <- paste(indexEvent, "+", outcomeEvent)
+accuracy_dataframe_list_BR <- list(accuracy_lr_dataframe, accuracy_dt_dataframe, 
+                                   accuracy_xgb_dataframe, accuracy_en_dataframe, 
+                                   accuracy_dh_dataframe, accuracy_dlc_dataframe)
+combined_results_BR <- combine_classification_results(accuracy_dataframe_list_BR, data_name_BR)
+
+# display the combined dataframe
+pander(combined_results_BR, caption = "Classification Model Performance")
+```
+
+```{r}
+# set the indexEvent and outcomeEvent
+indexEvent = "deposit"
+outcomeEvent = "withdraw"
+
+# load the corresponding train and test data
+get_train_test_data(indexEvent, outcomeEvent)
+
+classification_cutoff = get_classification_cutoff(indexEvent, outcomeEvent)
+processed <- preprocess(train, test,
+                        useScaling = TRUE,
+                        useOneHotEncoding = TRUE,
+                        usePCA = TRUE,
+                        pcaExplainedVar = 0.9,
+                        classificationTask = TRUE,
+                        classificationCutoff = classification_cutoff)
+# preprocess returns a list, the first element is the processed training data, and the second is the test data
+train_data <- processed[[1]]
+test_data <- processed[[2]]
+```
+
+```{r}
+# If you want to watch the percentages between "Yes" and "No" label, run this code.
+get_percentage(train_data, indexEvent, outcomeEvent)
+```
+
+```{r}
+lr_return = logistic_regression(train_data, test_data)
+accuracy_lr_dataframe = lr_return$metrics_lr_dataframe
+accuracy_lr = lr_return$metrics_lr
+model_version_lr = lr_return$model_version
+```
+
+```{r}
+en_return = elastic_net(train_data, test_data)
+accuracy_en_dataframe = en_return$metrics_en_dataframe
+accuracy_en = en_return$metrics_en
+model_version_en = en_return$model_version
+```
+
+```{r}
+xgb_return = XG_Boost(train_data, test_data)
+accuracy_xgb_dataframe = xgb_return$metrics_xgb_dataframe
+accuracy_xgb = xgb_return$metrics_xgb
+model_version_xgb = xgb_return$model_version
+```
+
+```{r}
+dh_return = deephit_model(train_data, test_data)
+accuracy_dh_dataframe = dh_return$metrics_dh_dataframe
+accuracy_dh = dh_return$metrics_dh
+model_version_dh = dh_return$model_version
+```
+
+```{r}
+processed <- preprocess(train, test,
+                        useScaling = TRUE,
+                        useOneHotEncoding = TRUE,
+                        usePCA = FALSE,
+                        pcaExplainedVar = 0.9,
+                        classificationTask = TRUE,
+                        classificationCutoff = classification_cutoff)
+# preprocess returns a list, the first element is the processed training data, and the second is the test data
+train_data <- processed[[1]]
+test_data <- processed[[2]]
+```
+
+```{r}
+dlc_return = deepLearning_classification_model(train_data, test_data)
+accuracy_dlc_dataframe = dlc_return$metrics_dlc_dataframe
+accuracy_dlc = dlc_return$metrics_dlc
+model_version_dlc = dlc_return$model_version
+```
+
+```{r}
+processed <- preprocess(train, test,
+                        useScaling = FALSE,
+                        useOneHotEncoding = TRUE,
+                        usePCA = FALSE,
+                        pcaExplainedVar = 0.9,
+                        classificationTask = TRUE,
+                        classificationCutoff = classification_cutoff)
+# preprocess returns a list, the first element is the processed training data, and the second is the test data
+train_data <- processed[[1]]
+test_data <- processed[[2]]
+```
+
+```{r}
+dt_return = decision_tree(train_data, test_data)
+accuracy_dt_dataframe = dt_return$metrics_dt_dataframe
+accuracy_dt = dt_return$metrics_dt
+model_version_dt = dt_return$model_version
+```
+
+```{r}
+# compare all the classification models
+metrics_list_BW <- list(
+  list(accuracy_lr, "Logistic Regression"),
+  list(accuracy_dt, "Decision Tree"),
+  list(accuracy_xgb, "XGBoost"),
+  list(accuracy_en, "Elastic Net"),
+  list(accuracy_dh, "DeepHit"),
+  list(accuracy_dlc, "DeepLearningClassifier")
+)
+accuracy_comparison_plot(metrics_list_BW)
+```
+
+```{r}
+model_version_list_BW <- list(
+  list(model_version_lr, "Logistic Regression"),
+  list(model_version_dt, "Decision Tree"),
+  list(model_version_xgb, "XGBoost"),
+  list(model_version_en, "Elastic Net"),
+  list(model_version_dh, "DeepHit"),
+  list(model_version_dlc, "DeepLearningClassifier")
+)
+```
+
+```{r}
+# Show the final dataframe for all classification models,
+# including the classification model name, accuracy, data combination name.
+data_name_BW <- paste(indexEvent, "+", outcomeEvent)
+accuracy_dataframe_list_BW <- list(accuracy_lr_dataframe, accuracy_dt_dataframe, 
+                                   accuracy_xgb_dataframe, accuracy_en_dataframe, 
+                                   accuracy_dh_dataframe, accuracy_dlc_dataframe)
+combined_results_BW <- combine_classification_results(accuracy_dataframe_list_BW, data_name_BW)
+
+# display the combined dataframe
+pander(combined_results_BW, caption = "Classification Model Performance")
+```
+
+## Classification Model Performance For All Data Combinations
+
+After we run all the data combinations, we can use the `combine_accuracy_dataframes` to combine all the classification models' performance into one dataframe.
+
+```{r}
+combined_classification_results <- combine_accuracy_dataframes(
+  list(combined_results_BR, combined_results_BW))
+pander(combined_classification_results, caption = "Classification Model Performance for all data")
+```
+
+## Generating Dataframe For Specified Accuracy
+
+```{r}
+auc_score_dataframe_BR <- specific_accuracy_table(data_name_BR, "auc_score", metrics_list_BR)
+auc_score_dataframe_BW <- specific_accuracy_table(data_name_BW, "auc_score", metrics_list_BW)
+combined_accuracy_dataframe <- combine_accuracy_dataframes(
+  list(auc_score_dataframe_BR, auc_score_dataframe_BW))
+pander(combined_accuracy_dataframe, caption = "Combined auc score dataframe")
+```
+
+## Generating Dataframe For Model Version
+
+```{r}
+model_version_dataframe_BR <- specific_model_version_table(data_name_BR, model_version_list_BR)
+model_version_dataframe_BW <- specific_model_version_table(data_name_BW, model_version_list_BW)
+combined_accuracy_dataframe <- combine_accuracy_dataframes(
+  list(model_version_dataframe_BR, model_version_dataframe_BW))
+pander(combined_accuracy_dataframe, caption = "Combined model version dataframe")
+```

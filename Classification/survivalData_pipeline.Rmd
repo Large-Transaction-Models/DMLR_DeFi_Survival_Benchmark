@@ -1,0 +1,1733 @@
+---
+title: "DeFi Survival Data Pipeline"
+author: "Hanzhen Qin(qinh2)"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    number_sections: true
+    df_print: paged
+  pdf_document: 
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+# Check and install required R packages
+if (!require("conflicted")) {
+  install.packages("conflicted", dependencies = TRUE)
+  library(conflicted)
+}
+
+# Set default CRAN repository
+local({
+  r <- getOption("repos")
+  r["CRAN"] <- "http://cran.r-project.org"
+  options(repos = r)
+})
+
+# Define the list of required packages
+required_packages <- c(
+  "rmarkdown", "tidyverse", "stringr", "ggbiplot", "pheatmap", 
+  "caret", "survival", "survminer", "ggplot2", 
+  "kableExtra", "rpart", "glmnet", "data.table", "reshape2", "pROC", 
+  "pander", "readr", "dplyr", "ROSE", "xgboost", "parallel", "reticulate"
+)
+
+# Loop through the package list and install missing packages
+for (pkg in required_packages) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg, dependencies = TRUE)
+    library(pkg, character.only = TRUE)
+  }
+}
+
+# Handle function name conflicts
+conflict_prefer("slice", "dplyr")
+conflict_prefer("filter", "dplyr")
+
+# Set knitr options for R Markdown
+knitr::opts_chunk$set(echo = TRUE)
+
+# Rename dplyr functions to avoid conflicts with other packages
+select <- dplyr::select
+rename <- dplyr::rename
+summarize <- dplyr::summarize
+group_by <- dplyr::group_by
+```
+
+# Survival Data Pipeline
+
+## Pipeline Summary
+
+* Summary of work
+  
+  * Data Preprocessing: `get_classification_cutoff`, `preprocess`
+  
+  * Data Processing: `get_train_test_data`, `smote_data`
+  
+  * Model Performance Evaluation And Visualization : `calculate_model_metrics`, `get_dataframe`,
+  `combine_classification_results`, `accuracy_comparison_plot`, `get_percentage`, 
+  `specific_accuracy_table`, `specific_model_version_table`, `combine_accuracy_dataframes`
+  
+  * Classification Models: `logistic_regression`, `decision_tree`, `XG_Boost`, `elastic_net`
+
+  * Deep Learning Models: `deephit_model`, `deephit_model.py`, `deepLearning_classification_model`, 
+  `deepLearning_classification_model.py`
+  
+## Data Preprocessing
+
+### def get_classification_cutoff (@Author: Aaron Green)
+
+The `get_classification_cutoff` function retrieves the `ConvergedRMST_5` value from a predefined dataset based on the specified `indexEvent` and `outcomeEvent`. The dataset contains information about various index events (e.g., "Borrow", "Deposit") and their corresponding outcome events (e.g., "Full Repay", "Withdraw"), along with convergence metrics like `ConvergedTau` and `ConvergedRMST` at different time horizons. The function filters the dataset by matching the input events with the respective `IndexEvent` and `OutcomeEvent` columns and returns the relevant `ConvergedRMST_5` value, which represents a specific metric of convergence over a 5-unit time period. Return the optimal cutoff value for the `data_processing` function.
+
+```{r}
+get_classification_cutoff <- function(indexEvent, outcomeEvent){
+  # library(stringr)
+  # Create the dataframe
+  data <- data.frame(
+    IndexEvent = c("Borrow", "Borrow", "Borrow", "Borrow", "Borrow", "Borrow", 
+                   "Deposit", "Deposit", "Deposit", "Deposit", "Deposit",
+                   "Repay", "Repay", "Repay", "Repay", "Repay",
+                   "Withdraw", "Withdraw", "Withdraw", "Withdraw", "Withdraw"),
+    OutcomeEvent = c("Account Liquidated", "Deposit", "Full Repay", "Liquidation Performed", "Repay", "Withdraw", 
+                     "Account Liquidated", "Borrow", "Liquidation Performed", "Repay", "Withdraw",
+                     "Account Liquidated", "Borrow", "Deposit", "Liquidation Performed", "Withdraw",
+                     "Account Liquidated", "Borrow", "Deposit", "Liquidation Performed", "Repay"),
+    ConvergedTau_1 = c(91, 99, 95, 101, 69, 99, 
+                       90, 100, 101, 99, 93, 
+                       93, 95, 100, 101, 100, 
+                       94, 101, 99, 101, 100),
+    ConvergedRMST_1 = c(69.36, 90.98, 74.12, 100.88, 28.71, 92.59, 
+                        68.64, 91.58, 100.95, 89.70, 64.84, 
+                        72.56, 63.23, 93.72, 100.86, 93.93,
+                        75.10, 96.01, 82.13, 100.88, 93.82),
+    ConvergedTau_5 = c(20, 21, 20, 21, 17, 21, 
+                       20, 21, 21, 21, 20, 
+                       20, 20, 21, 21, 21,
+                       20, 21, 21, 21, 21),
+    ConvergedRMST_5 = c(17.43, 19.88, 17.15, 20.99, 10.24, 20.21, 
+                        17.52, 19.73, 20.99, 19.69, 15.67, 
+                        17.43, 14.99, 20.13, 20.99, 20.15,
+                        17.72, 20.26, 18.14, 20.98, 20.04),
+    ConvergedTau_10 = c(11, 11, 11, 11, 10, 11, 
+                        11, 11, 11, 11, 11, 
+                        11, 11, 11, 11, 11,
+                        11, 11, 11, 11, 11),
+    ConvergedRMST_10 = c(9.94, 10.51, 9.72, 11.00, 6.66, 10.68, 
+                         10.00, 10.43, 11.00, 10.44, 8.95, 
+                         9.90, 8.64, 10.62, 11.00, 10.62,
+                         10.05, 10.68, 9.68, 10.99, 10.57)
+  )
+  
+  
+  return(data %>% filter(IndexEvent == str_to_title(indexEvent), 
+                         OutcomeEvent == str_to_title(outcomeEvent)) %>% pull(ConvergedRMST_5))
+}
+```
+
+### def preprocess (@Author: Aaron Green)
+
+This R script defines a comprehensive preprocessing pipeline for machine learning classification tasks, particularly tailored for DeFi event prediction. It consists of two main functions: `smartOneHotEncode` and `preprocess`. The `smartOneHotEncode` function handles categorical encoding by transforming categorical variables into one-hot representations while ensuring that only the most frequent reserve and userReserveMode categories are retained, grouping less common ones into an "Other" category. The `preprocess` function orchestrates various data preprocessing steps, including feature selection, scaling, one-hot encoding, and dimensionality reduction using PCA. It begins by removing irrelevant columns, converting categorical variables into factors, and applying scaling to numeric features to ensure consistency across training and test datasets. If enabled, PCA is performed to reduce feature dimensionality while preserving 90% of the variance. Additionally, for classification tasks, the function filters out invalid records, applies a specified time difference threshold (`classificationCutoff`), and generates a binary target variable (`event`). This pipeline ensures that both training and test datasets follow the same transformation processes, optimizing them for machine learning models such as logistic regression, decision trees, deep learning classifiers, and survival analysis models like DeepHit. The output is a structured and preprocessed dataset, ready for modeling and performance evaluation.
+
+```{r}
+# library(fastDummies)
+# library(dplyr)
+# library(conflicted)
+
+conflict_prefer("filter", "dplyr")
+conflict_prefer("summarize", "dplyr")
+conflict_prefer("select", "dplyr")
+
+
+
+# This function is tailored specifically for our DeFi data and does not necessarily use best coding practices.
+# It should be used in the following way:
+#   After loading a train and test set using dataLoader.R, pass the train data into this function
+#   and make sure to parse the output for all three results, which will include the one-hot-encoded
+#   training data and lists which represent the "smart-one-hot-encoded" categories for reserve and 
+# userReserveMode.
+#
+#   Next, pass in the test data along with the lists for reserves and userReserveMode in order to 
+#   one-hot-encode the testing data with the same categories as the training data. This is important!!!
+#   
+smartOneHotEncode <- function(df, topReserveTypes = list(), topUserReserveModes = list()){
+  # We should convert categorical features into one-hot encoded features, and make sure that we don't have 
+  # too many unnecessary features as such.
+  
+  factor_cols <- names(df)[sapply(df, is.factor)]
+ 
+  
+  #   reserve: For this, let's just make categories for the top ten reserve types, and just put the rest 
+  # in "other"
+  if(length(topReserveTypes) == 0){
+    topReserveTypes <- df %>%
+      select(reserve) %>%
+      group_by(reserve) %>%
+      summarize(count = n()) %>%
+      ungroup() %>%
+      arrange(-count) %>%
+      head(10) %>%
+      select(reserve)
+    
+    topReserveTypes <- as.list(as.character(topReserveTypes$reserve))  
+    
+  }
+  
+  df <- df %>%
+    mutate(reserve = case_when(reserve %in% topReserveTypes ~ reserve,
+                               TRUE ~ "Other"))
+  
+  #   userReserveMode: We will handle this the same as reserve.
+  if(length(topUserReserveModes) == 0){
+    topUserReserveModes <- df %>%
+      select(userReserveMode) %>%
+      group_by(userReserveMode) %>%
+      summarize(count = n()) %>%
+      ungroup() %>%
+      arrange(-count) %>%
+      head(10) %>%
+      select(userReserveMode) 
+    
+    topUserReserveModes <- as.list(as.character(topUserReserveModes$userReserveMode))
+  }
+  
+  
+  df <- df %>%
+    mutate(userReserveMode = case_when(userReserveMode %in% topUserReserveModes ~ userReserveMode,
+                                       TRUE ~ "Other"))
+  
+  # Now we use the fastDummies package to quickly transform reserve and userReserveMode into one-hot-encodings:
+  
+  df_encoded <- dummy_cols(
+    df,
+    select_columns = c("reserve", "userReserveMode", factor_cols),  # Which column(s) to encode
+    remove_selected_columns = TRUE,  # Drop the original columns
+    remove_first_dummy = TRUE        # Often set to TRUE to avoid dummy trap
+  )
+  
+  return(list(df_encoded, topReserveTypes, topUserReserveModes))
+}
+
+
+preprocess <- function(train, test,
+                       useScaling = TRUE,
+                       useOneHotEncoding = TRUE,
+                       usePCA = TRUE, pcaExplainedVar = 0.9, 
+                       classificationTask = FALSE, classificationCutoff = -1){
+  
+  
+  # Let's save off the target columns up front so we can drop them before scaling:
+  trainTargets <- train %>%
+    select(timeDiff, status)
+  testTargets <- test %>%
+    select(timeDiff, status)
+  # Let's drop some of the columns that we know we can't use:
+  cols_to_drop = c("timeDiff", "status",
+                   "id", "Index Event", "Outcome Event",
+                   "type", "pool",
+                   "user", "timestamp")
+  
+  train <- train %>%
+    select(-any_of(cols_to_drop)) %>%
+    mutate(across(where(is.character), as.factor))
+  test <- test %>%
+    select(-any_of(cols_to_drop)) %>%
+    mutate(across(where(is.character), as.factor))
+  
+  
+  
+  trainDataCategoricalCols <- train %>%
+    select(where(is.factor))
+  testDataCategoricalCols <- test %>%
+    select(where(is.factor))
+  train <- train %>%
+    select(-where(is.factor))
+  test <- test %>%
+    select(-where(is.factor))
+  
+  if(useScaling == TRUE){
+    # Let's scale the data:
+    train <- scale(as.matrix(train))
+    
+    test <- data.frame(scale(as.matrix(test), center=attr(train, "scaled:center"), 
+                             scal=attr(train, "scaled:scale")))
+    
+    train <- data.frame(train) 
+    test <- data.frame(test)
+    
+    train <- train[ , !sapply(train, function(x) all(is.na(x)))]
+    
+    common_cols <- intersect(colnames(train), colnames(train))
+    test <- test %>%
+      select(all_of(common_cols))
+    
+  }
+  
+  if(useOneHotEncoding == TRUE){
+    # One-hot encode the categorical data if requested:
+    trainOutput <- smartOneHotEncode(trainDataCategoricalCols)
+    trainDataCategoricalCols <- trainOutput[[1]]
+    topReserveTypes <- trainOutput[[2]]
+    topUserReserveModes <- trainOutput[[3]]
+    testDataCategoricalCols <- smartOneHotEncode(testDataCategoricalCols, 
+                                              topReserveTypes = topReserveTypes, 
+                                              topUserReserveModes = topUserReserveModes)[[1]]
+  }
+  
+  # Put categorical columns back in the data:
+  train <- train %>%
+    bind_cols(trainDataCategoricalCols)
+  
+  test <- test %>%
+    bind_cols(testDataCategoricalCols)
+  
+  
+  
+  
+  if(usePCA == TRUE){
+    # Now that we have scaled, encoded data, let's run PCA to help eliminate collinearity of features:
+    pca_result <- prcomp(train, center = FALSE, scale. = FALSE)
+    
+    
+    # Variances of each PC are the squared standard deviations:
+    pc_variances <- pca_result$sdev^2  
+    
+    # Proportion of total variance explained by each PC:
+    prop_variance <- pc_variances / sum(pc_variances)
+    
+    # Cumulative variance explained:
+    cumvar <- cumsum(prop_variance)
+    
+    # Find the smallest number of PCs explaining at least 90% variance:
+    num_pcs <- which(cumvar >= pcaExplainedVar)[1]
+    
+    # Keep only the PCs that explain ≥ 90% of variance
+    train <- as.data.frame(pca_result$x[, 1:num_pcs])
+    
+    # 'scores_90pct' is now a matrix with the same number of rows as df,
+    # but fewer columns (one column per principal component).
+    test <- data.frame(predict(pca_result, newdata = test))[, 1:num_pcs]
+  }
+  
+  
+  # Put the targets back in the data:
+  final_train_data <- train %>%
+    bind_cols(trainTargets)
+  
+  final_test_data <- test %>%
+    bind_cols(testTargets)
+  
+ 
+  
+  if(classificationTask){
+    # filter out invalid records where `timeDiff` is <= 0 early
+    final_train_data <- final_train_data %>% filter(timeDiff > 0)
+    
+    # filter out records based on the `set_timeDiff` threshold and `status`
+    final_train_data <- final_train_data %>% filter(!(timeDiff / 86400 <= classificationCutoff & status == 0))
+    
+    # create a new binary column `event` based on `timeDiff`
+    final_train_data <- final_train_data %>%
+      mutate(event = case_when(
+        timeDiff / 86400 <= classificationCutoff ~ "yes",
+        timeDiff / 86400 > classificationCutoff ~ "no"
+      )) %>%
+      select(-timeDiff, -status)
+    
+    # filter out invalid records where `timeDiff` is <= 0 early
+    final_test_data <- final_test_data %>% filter(timeDiff > 0)
+    
+    # filter out records based on the `set_timeDiff` threshold and `status`
+    final_test_data <- final_test_data %>% filter(!(timeDiff / 86400 <= classificationCutoff & status == 0))
+    
+    # create a new binary column `event` based on `timeDiff`
+    final_test_data <- final_test_data %>%
+      mutate(event = case_when(
+        timeDiff / 86400 <= classificationCutoff ~ "yes",
+        timeDiff / 86400 > classificationCutoff ~ "no"
+      )) %>%
+      select(-timeDiff, -status)
+  }
+  
+  return(list(final_train_data, final_test_data))
+}
+```
+
+## Data Processing
+
+### def get_train_test_data
+
+The `get_train_test_data` function is designed to get the training and test data based on the `indexEvent` and `outcomeEvent` parameters, but the specific logic has not yet been implemented. The function references the external script `dataLoader.r` through `source()` to load the latest processed survival data, and returns the train and test data sets directly by default.
+
+```{r}
+get_train_test_data <- function(indexEvent, outcomeEvent) {
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
+}
+```
+
+### def smote_data
+
+The `smote_data` function leverages the `ROSE` package to address class imbalance in datasets by dynamically generating a balanced dataset based on oversampling and undersampling techniques. The function is designed to be flexible, allowing the user to specify the target variable (`target_var`) and an optional random seed (`seed`) for reproducibility. It validates the input dataset to ensure the target variable exists and dynamically constructs the formula for the `ROSE` function, making it adaptable to different datasets and classification tasks. By generating a balanced dataset where the minority and majority classes are better represented, this function helps mitigate bias in machine learning models and improves their classification accuracy. 
+
+```{r}
+smote_data <- function(train_data, target_var = "event", seed = 123) {
+  # library(ROSE)
+  # check if the input data contains the target variable
+  if (!target_var %in% colnames(train_data)) {
+    stop(paste("Target variable", target_var, "not found in the dataset"))
+  }
+  
+  # set the random seed (if provided)
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  
+  # dynamic formula creation to adapt to different target variables
+  formula <- as.formula(paste(target_var, "~ ."))
+  
+  # applying ROSE Balance Data
+  train_data_balanced <- ROSE(formula, data = train_data, seed = seed)$data
+  
+  # return the balanced dataset
+  return(train_data_balanced)
+}
+```
+
+## Model Performance Evaluation And Visualization
+
+### def calculate_model_metrics
+
+The function `calculate_model_metrics` is used to calculate multiple performance indicators of the binary classification model, including balanced accuracy, F1 score, and AUC score. The function first extracts true negatives, false positives, false negatives, and true positives from the input confusion matrix, and then calculates the specificity (True Negative Rate), sensitivity (True Positive Rate), and precision, and uses these indicators to calculate the balanced accuracy and F1 score, while handling possible division by zero to prevent the generation of NaN values. Finally, the function prints all performance indicators and returns these measurement results in a list form, providing a comprehensive reference for model evaluation.
+
+```{r}
+calculate_model_metrics <- function(confusion_matrix, binary_predictions, model_name, auc_score) {
+  # Extract True Negatives, False Positives, False Negatives, and True Positives from the confusion matrix
+  TN <- confusion_matrix[1, 1] # True Negatives
+  FP <- confusion_matrix[1, 2] # False Positives
+  FN <- confusion_matrix[2, 1] # False Negatives
+  TP <- confusion_matrix[2, 2] # True Positives
+  
+  # Calculate Specificity (True Negative Rate)
+  specificity <- TN / (TN + FP)
+  
+  # Calculate Sensitivity (Recall, True Positive Rate)
+  sensitivity <- TP / (TP + FN)
+  
+  # Calculate Balanced Accuracy as the average of Sensitivity and Specificity
+  balanced_accuracy <- (specificity + sensitivity) / 2
+  
+  # Calculate Precision
+  precision <- TP / (TP + FP)
+  
+  # Calculate F1 Score as the harmonic mean of Precision and Sensitivity
+  f1_score <- 2 * (precision * sensitivity) / (precision + sensitivity)
+  
+  if (is.nan(balanced_accuracy)) balanced_accuracy <- 0.50
+  if (is.nan(f1_score)) f1_score <- 0.50
+  if (is.nan(auc_score)) auc_score <- 0.50
+  
+  # Print all performance metrics with labels
+  print(paste(model_name, "model prediction accuracy:"))
+  cat("Balanced Accuracy:", sprintf("%.3f", balanced_accuracy), "\n")
+  cat("F1 Score:", sprintf("%.3f", f1_score), "\n")
+  cat("AUC Score:", sprintf("%.3f", auc_score), "\n")
+  
+  # Return all computed metrics in a list
+  return(list(
+    balanced_accuracy = balanced_accuracy, 
+    f1_score = f1_score,
+    auc_score = auc_score
+  ))
+}
+```
+
+### def get_dataframe
+
+The `get_dataframe` function creates a formatted data frame containing accuracy metrics for a given model. It takes two inputs: `model_name`, a string representing the model's name, and `metrics`, a list containing the model's accuracy metrics. The function constructs a data frame with three columns: "Model," "AUC_Score," and "F1_Score." The accuracy values are converted to percentages with two decimal places using `sprintf("%.2f%%", value * 100)`. Finally, the formatted data frame is returned.
+
+```{r}
+get_dataframe <- function(model_name, metrics) {
+  metrics_dataframe <- data.frame(
+    Model = model_name, 
+    # balanced_accuracy = sprintf("%.2f%%", metrics$balanced_accuracy * 100),
+    auc_score = sprintf("%.3f", metrics$auc_score),
+    f1_score = sprintf("%.3f", metrics$f1_score)
+  )
+  return (metrics_dataframe)
+}
+```
+
+### def combine_classification_results
+
+The `combine_classification_results` function is designed to unify performance metrics from multiple classification models into a single, cohesive dataframe. It accepts two parameters: a list of dataframes (`accuracy_dataframe_list`), each containing accuracy metrics for a different model, and a string (`data_combination`) describing the dataset combination (e.g., "Withdraw + Deposit"). The function uses `lapply` to iterate over each dataframe in the list, adding a `Data_Combination` column that records the dataset combination description for that model's metrics. Once each dataframe is labeled, `do.call(rbind, accuracy_dataframe_list)` concatenates the dataframes by rows, resulting in a single combined dataframe with all models’ metrics and an additional column indicating the dataset combination.
+
+```{r}
+combine_classification_results <- function(accuracy_dataframe_list, data_combination) {
+  # Remove NULL dataframes to ensure the list contains only valid dataframes
+  accuracy_dataframe_list <- accuracy_dataframe_list[!sapply(accuracy_dataframe_list, is.null)]
+  
+  # Add the `Data_Combination` column to each dataframe in the list
+  accuracy_dataframe_list <- lapply(accuracy_dataframe_list, function(df) {
+    df$Data_Combination <- data_combination
+    return(df)
+  })
+  
+  # Merge all dataframes into a single dataframe
+  combined_dataframe <- do.call(rbind, accuracy_dataframe_list)
+  
+  return(combined_dataframe)
+}
+```
+
+### def get_percentage
+
+The `get_percentage` function takes a dataset (`survivalDataForClassification`), along with two event labels (`indexEvent` and `outcomeEvent`), and calculates the percentage distribution of different event types within the dataset. It groups the data by the event variable, counts occurrences for each event type, and then calculates the total and corresponding percentage for each event. The function then creates a bar plot to visually display the percentage of each event type, labeling the bars with the percentage values and showing the y-axis as a percentage. The plot is titled according to the provided `indexEvent` and `outcomeEvent` labels.
+
+```{r}
+get_percentage <- function(survivalDataForClassification, indexEvent, outcomeEvent) {
+  # indexEvent and outcomeEvent is a string type
+  pctPerEvent <- survivalDataForClassification %>%
+  group_by(event) %>%
+  dplyr::summarize(numPerEvent = n()) %>%
+  mutate(total = sum(numPerEvent)) %>%
+  mutate(percentage = numPerEvent / total) %>%
+  dplyr::select(event, percentage)
+  # create a bar plot for event percentages
+  # stat = "identity": percentages used directly to draw the bar chart
+  print(ggplot(pctPerEvent, aes(x = event, y = percentage, fill = event)) +
+    geom_bar(stat = "identity") +
+    scale_y_continuous(labels = scales::percent_format()) +  # show y-axis in percentage
+    labs(title = "Percentage of Events: 'Yes' event vs 'No' event",
+         x = paste(indexEvent, "and", outcomeEvent),
+         y = "Percentage") +
+    geom_text(aes(label = scales::percent(percentage)), 
+              vjust = -0.5, size = 3.5) +  # show percentages on top of bars
+    theme_minimal())
+}
+```
+
+### def accuracy_comparison_plot
+
+The `accuracy_comparison_plot` function visualizes the accuracy performance of different models by creating a faceted bar plot. It takes `metrics_list` as input, where each element consists of a model’s accuracy metrics and its corresponding name. The function first initializes an empty data frame and iterates through `metrics_list`, extracting `auc_score` and `f1_score` for each model, and appending them to the data frame. The data is then transformed into a long format using `reshape2::melt()` to facilitate plotting. A `ggplot2` bar chart is generated, where models are represented on the x-axis and accuracy values on the y-axis. The plot is faceted by metric type, ensuring a separate visualization for `balanced_accuracy` and `f1_score`. Labels displaying percentage values are added on top of each bar for clarity. The final visualization is styled using a minimal theme, with x-axis text rotated for better readability.
+
+```{r}
+accuracy_comparison_plot <- function(metrics_list) {
+  # initialize an empty data frame to store the metrics for all models
+  accuracy_table <- data.frame()
+  
+  # loop over each element in metrics_list (each element is a list containing metrics and model name)
+  for (metrics in metrics_list) {
+    # Extract metrics and model name from each "tuple"
+    model_metrics <- metrics[[1]]
+    model_name <- metrics[[2]]
+    
+    # create a temporary dataframe for this model
+    temp_df <- data.frame(
+      Model = model_name, 
+      # balanced_accuracy = model_metrics$balanced_accuracy,
+      auc_score = model_metrics$auc_score,
+      f1_score = model_metrics$f1_score
+    )
+    
+    # append the temporary dataframe to the main accuracy_table
+    accuracy_table <- rbind(accuracy_table, temp_df)
+  }
+  
+  # melt the dataframe into long format for plotting
+  accuracy_results_melted <- reshape2::melt(accuracy_table, id.vars = "Model")
+  
+  # generate the plot with faceted bars
+  ggplot(accuracy_results_melted, aes(x = Model, y = value, fill = Model)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    facet_wrap(~ variable, scales = "free_y") +  # Facet by each metric
+    labs(title = "Comparison of Accuracy Metrics Across Models",
+         x = "Model",
+         y = "Value") +
+    # add percentage labels on top of each bar
+    geom_text(aes(label = scales::percent(value, accuracy = 0.1)),
+              position = position_dodge(width = 0.9),
+              vjust = 0.5, size = 2.0) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+```
+
+### def specific_accuracy_table
+
+The `specific_accuracy_table` function calculates and organizes accuracy-related metrics for different models based on a given accuracy type. It takes three arguments: `event_pair`, which represents a specific event combination, `accuracy_type`, which specifies the type of accuracy metric to extract ("balanced_accuracy", "auc_score" or "f1_score"), and `metrics_list`, a list containing accuracy data and corresponding model names. The function initializes a result list, placing `accuracy_type` in the top-left corner and `event_pair` as the first column. It then iterates through `metrics_list`, extracting and rounding the selected accuracy metric for each model. If an invalid `accuracy_type` is provided, it raises an error. Finally, the results are converted into a DataFrame and returned with row names set to `NULL`.
+
+```{r}
+specific_accuracy_table <- function(event_pair, accuracy_type, metrics_list) {
+  # initialize the result list
+  results <- list()
+  
+  # add accuracy_type as the left front corner and event_pair is the first column of the data
+  results[[accuracy_type]] <- event_pair
+  
+  # traverse metrics_list and extract the specified accuracy type for each model
+  for (metric_item in metrics_list) {
+    # get accuracy data
+    accuracy_data <- metric_item[[1]]
+    # get the model name
+    model_name <- metric_item[[2]]
+    if (accuracy_type == "balanced_accuracy") {
+      results[[model_name]] <- round(accuracy_data$balanced_accuracy, 3)
+    }
+    else if (accuracy_type == "auc_score") {
+      results[[model_name]] <- round(accuracy_data$auc_score, 3)
+    }
+    else if (accuracy_type == "f1_score") {
+      results[[model_name]] <- round(accuracy_data$f1_score, 3)
+    }
+    else {
+      # An error message is displayed if the specified accuracy_type does not exist.
+      stop(paste("Invalid accuracy type:", accuracy_type))
+    }
+  }
+  
+  # convert the result to a DataFrame and set row.names = NULL
+  df <- as.data.frame(results, row.names = NULL)
+  return(df)
+}
+```
+
+### def specific_model_version_table
+
+The `specific_model_version_table` function is designed to extract and summarize the version of each classification model used during training, specifically indicating whether SMOTE or no SMOTE was applied. It takes two inputs: `event_pair`, a string describing the event combination (e.g., "borrow + repay"), and `model_version_list`, a list where each element contains a model’s evaluation metrics and its name. The function iterates over each model, retrieves the corresponding `model_version` value (e.g., "smote" or "no smote"), and constructs a row of results with the event label in the first column followed by the version used by each model.
+
+```{r}
+specific_model_version_table <- function(event_pair, model_version_list) {
+  # initialize the results list without punctuation
+  results <- list()
+  
+  # add model_version label in the first column using event_pair
+  results[["model_version"]] <- event_pair
+  
+  # traverse the model_version_list where each element contains the metrics and model name
+  for (metric_item in model_version_list) {
+    # extract model metrics and model name from the list element
+    model_version <- metric_item[[1]]
+    model_name <- metric_item[[2]]
+    
+    # assign the model_version from model metrics
+    results[[model_name]] <- model_version
+  }
+  
+  # convert the results list to a data frame and return it
+  df <- as.data.frame(results, row.names = NULL)
+  return(df)
+}
+```
+
+### def combine_accuracy_dataframes
+
+The `combine_accuracy_dataframes` function takes a list of data frames as input and combines them into a single data frame by stacking the rows. It first checks if the input is a valid list and throws an error if not. Then, using `do.call` and `rbind`, it merges all the data frames in the list row-wise. The function is designed to handle multiple data frames efficiently and returns a consolidated data frame for further analysis.
+
+```{r}
+combine_accuracy_dataframes <- function(df_list) {
+  # check if the input is a list
+  if (!is.list(df_list)) {
+    stop("Input must be a list of data.frames.")
+  }
+  
+  # Use do.call and rbind to combine all data.frames in a list.
+  combined_df <- do.call(rbind, df_list)
+  
+  # returns the merged data.frame
+  return(combined_df)
+}
+```
+
+## Classification Models
+
+### def logistic_regression
+
+This function implements a classification pipeline using logistic regression on a binary outcome labeled as "yes" or "no". It first calculates the proportion of positive ("yes") labels in the training set and converts the target variable into binary format (1 for "yes", 0 for "no"). The training data is then split into training and validation subsets. If the positive class ratio is at least 15%, the model is trained without applying SMOTE. Otherwise, two candidate models are trained: one on the original data and another on SMOTE-augmented data. Both are evaluated on the validation set using ROC-AUC, and the one with the higher AUC is selected as the final model. This selected model is then used to predict probabilities on the test set, which are converted to binary predictions using the optimal threshold derived from the validation ROC curve. The function evaluates the performance on the test set by generating a confusion matrix, computing ROC and AUC, and calculating custom performance metrics using a helper function. Finally, it returns the performance metrics as a list and a summary dataframe and its' model version.
+
+```{r}
+logistic_regression <- function(train_data, test_data) {
+  # library(data.table)
+  # library(caret)
+  # library(pROC)
+  
+  # Calculate the proportion of "yes" labels in the original train_data
+  pct_yes <- mean(train_data$event == "yes")
+  print(pct_yes)
+  
+  # Convert train_data and test_data to data.table format for faster processing
+  setDT(train_data)
+  setDT(test_data)
+  train_data[, event := ifelse(event == "yes", 1, 0)]
+  test_data[, event := ifelse(event == "yes", 1, 0)]
+  
+  # Partition the train_data into a training subset (80%) and a validation subset (20%)
+  # The validation subset will be used for threshold tuning
+  set.seed(123)
+  trainIndex <- createDataPartition(train_data$event, p = 0.8, list = FALSE)
+  train_set <- train_data[trainIndex, ]
+  validation_set <- train_data[-trainIndex, ]
+  
+  if (pct_yes >= 0.15) {
+    # If the proportion of "yes" labels is at least 15% use the no_smote version directly
+    logistic_regression_model_no_smote <- glm(event ~ ., data = train_set, family = binomial)
+    val_probs_no_smote <- predict(logistic_regression_model_no_smote, newdata = validation_set, 
+                                  type = "response")
+    roc_val_no_smote <- roc(response = validation_set$event, predictor = val_probs_no_smote)
+    auc_no_smote <- auc(roc_val_no_smote)
+    optimal_threshold_no_smote <- coords(roc_val_no_smote, "best", ret = "threshold", best.method = "youden")
+    optimal_threshold_no_smote <- as.numeric(optimal_threshold_no_smote)[1]
+    final_model <- logistic_regression_model_no_smote
+    optimal_threshold <- optimal_threshold_no_smote
+    model_version <- "no smote"
+  }
+  else {
+    # If the proportion of "yes" labels is less than 15% perform a comparison between no_smote and smote versions
+    # Candidate 1: Without SMOTE
+    logistic_regression_model_no_smote <- glm(event ~ ., data = train_set, family = binomial)
+    val_probs_no_smote <- predict(logistic_regression_model_no_smote, newdata = validation_set, 
+                                  type = "response")
+    roc_val_no_smote <- roc(response = validation_set$event, predictor = val_probs_no_smote)
+    auc_no_smote <- auc(roc_val_no_smote)
+    optimal_threshold_no_smote <- coords(roc_val_no_smote, "best", ret = "threshold", best.method = "youden")
+    optimal_threshold_no_smote <- as.numeric(optimal_threshold_no_smote)[1]
+    
+    # Candidate 2: With SMOTE
+    train_set_smote <- smote_data(train_set)
+    logistic_regression_model_smote <- glm(event ~ ., data = train_set_smote, family = binomial)
+    val_probs_smote <- predict(logistic_regression_model_smote, newdata = validation_set, type = "response")
+    roc_val_smote <- roc(response = validation_set$event, predictor = val_probs_smote)
+    auc_smote <- auc(roc_val_smote)
+    optimal_threshold_smote <- coords(roc_val_smote, "best", ret = "threshold", best.method = "youden")
+    optimal_threshold_smote <- as.numeric(optimal_threshold_smote)[1]
+    
+    # Decide which model to use based on validation AUC
+    if (auc_smote > auc_no_smote) {
+      final_model <- logistic_regression_model_smote
+      optimal_threshold <- optimal_threshold_smote
+      model_version <- "smote"
+    }
+    else {
+      final_model <- logistic_regression_model_no_smote
+      optimal_threshold <- optimal_threshold_no_smote
+      model_version <- "no smote"
+    }
+  }
+  
+  # Predict probabilities on the test set using the selected model
+  test_probs <- predict(final_model, newdata = test_data, type = "response")
+  
+  # Convert probabilities to binary predictions ("yes" or "no") using the optimal threshold
+  test_pred <- ifelse(test_probs > optimal_threshold, "yes", "no")
+  
+  # Generate a confusion matrix for the test set
+  test_conf_matrix <- table(Predicted = test_pred, Actual = test_data$event)
+  
+  # Compute the ROC curve and AUC for the test set predictions
+  roc_curve <- roc(response = test_data$event, predictor = test_probs)
+  auc_score <- auc(roc_curve)
+  
+  # Plot the ROC curve with the AUC value displayed in the title
+  plot(roc_curve, main = paste("ROC Curve (AUC =", round(auc_score, 4), ")"))
+  
+  # Evaluate test set performance using the custom metrics function
+  metrics_lr <- calculate_model_metrics(test_conf_matrix, test_probs, "Logistic Regression", auc_score)
+  
+  # Create a dataframe containing the performance metrics for reporting
+  metrics_lr_dataframe <- get_dataframe("Logistic Regression", metrics_lr)
+  
+  return(list(metrics_lr_dataframe = metrics_lr_dataframe, metrics_lr = metrics_lr, 
+              model_version = model_version))
+}
+```
+
+### def decision_tree
+
+This function builds a classification model using a decision tree to predict a binary outcome labeled as "yes" or "no". It starts by calculating the proportion of positive ("yes") labels in the training data and then splits the training data into a training subset and a validation subset. The first candidate model is trained on the original training data without any resampling, using fixed hyperparameters: complexity parameter (`cp`) set to 0.01, maximum tree depth (`maxdepth`) set to 30, and minimum number of samples required to split an internal node (`minsplit`) set to 20. If the proportion of "yes" labels is below 15%, a second candidate model is trained on data augmented using SMOTE. Both models are evaluated on the validation set based on their AUC scores, and the one with better performance is selected as the final model. This model is then used to predict class labels and class probabilities on the test set. Test performance is assessed using a confusion matrix, ROC curve, and AUC score. A custom evaluation function is used to summarize performance metrics, and the results are returned as both a structured dataframe and a raw metrics list. The hyperparameters chosen (`cp = 0.01`, `maxdepth = 30`, `minsplit = 20`) are set manually and serve to control the complexity of the tree and reduce overfitting, but they are not tuned within the function.
+
+```{r}
+decision_tree <- function(train_data, test_data) {
+  # library(rpart)
+  # library(caret)
+  # library(pROC)
+  
+  # Calculate the original percentage of "yes" labels before any processing
+  pct_yes <- mean(train_data$event == "yes")
+  
+  # Split train_data into a training set (80%) and a validation set (20%) to evaluate model performance
+  set.seed(123) # Ensure reproducibility
+  trainIndex <- createDataPartition(train_data$event, p = 0.8, list = FALSE)
+  train_set <- train_data[trainIndex, ]
+  validation_set <- train_data[-trainIndex, ]
+  
+  # Candidate 1: Without SMOTE
+  decision_tree_model_no_smote <- rpart(
+    event ~ .,
+    data = train_set,
+    method = "class",
+    control = rpart.control(
+      cp = 0.01,
+      maxdepth = 30,
+      minsplit = 20
+    )
+  )
+  val_probs_no_smote <- predict(decision_tree_model_no_smote, validation_set, type = "prob")[, "yes"]
+  roc_val_no_smote <- roc(response = validation_set$event, predictor = val_probs_no_smote)
+  auc_no_smote <- auc(roc_val_no_smote)
+  
+  if (pct_yes < 0.15) {
+    # Candidate 2: With SMOTE
+    train_set_smote <- smote_data(train_set)
+    decision_tree_model_smote <- rpart(
+      event ~ .,
+      data = train_set_smote,
+      method = "class",
+      control = rpart.control(
+        cp = 0.01,
+        maxdepth = 30,
+        minsplit = 20
+      )
+    )
+    val_probs_smote <- predict(decision_tree_model_smote, validation_set, type = "prob")[, "yes"]
+    roc_val_smote <- roc(response = validation_set$event, predictor = val_probs_smote)
+    auc_smote <- auc(roc_val_smote)
+    
+    if (auc_smote > auc_no_smote) {
+      final_model <- decision_tree_model_smote
+      model_version <- "smote"
+    }
+    else {
+      final_model <- decision_tree_model_no_smote
+      model_version <- "no smote"
+    }
+  }
+  else {
+    final_model <- decision_tree_model_no_smote
+    model_version <- "no smote"
+  }
+  
+  # Predict the class labels on the test dataset using the final model
+  predict_probabilities_dt <- predict(final_model, test_data, type = "class")
+  test_conf_matrix <- table(Predicted = predict_probabilities_dt, Actual = test_data$event)
+  
+  # Obtain continuous probabilities for the positive class on test data
+  test_probs_cont <- predict(final_model, test_data, type = "prob")[, "yes"]
+  roc_curve <- roc(response = test_data$event, predictor = test_probs_cont)
+  auc_score <- auc(roc_curve)
+  
+  # Plot the ROC curve with the AUC value in the title
+  plot(roc_curve, main = paste("ROC Curve (AUC =", round(auc_score, 4), ")"))
+  
+  # Evaluate test performance using custom metrics
+  metrics_dt <- calculate_model_metrics(test_conf_matrix, predict_probabilities_dt, "Decision Tree", auc_score)
+  
+  # Create a dataframe with the desired structure containing performance metrics
+  metrics_dt_dataframe <- get_dataframe("Decision Tree", metrics_dt)
+  
+  # Return a list containing the metrics dataframe and the raw metrics
+  return(list(metrics_dt_dataframe = metrics_dt_dataframe, metrics_dt = metrics_dt, 
+              model_version = model_version))
+}
+```
+
+### def XG_Boost
+
+The function implements a binary classification model using the XGBoost algorithm to predict whether an event is "yes" or "no". It begins by converting the training and testing data into `data.table` format for efficiency and calculates the proportion of positive labels ("yes") in the training set. The data is split into a training and a validation subset. For the first candidate model (without SMOTE), the function constructs model matrices and defines a set of fixed hyperparameters including `max_depth = 6`, `eta = 0.1` (learning rate), `subsample = 0.8`, `colsample_bytree = 0.8`, and `scale_pos_weight`, which adjusts for class imbalance. The model is trained using early stopping (up to 200 boosting rounds, with patience of 10 rounds), and an optimal threshold for classification is chosen based on the Youden index on the validation ROC curve. If the proportion of "yes" labels is below 15%, the function applies SMOTE to the training data and trains a second XGBoost model using the same hyperparameters (with updated `scale_pos_weight`). Both models are compared on validation AUC, and the one with the higher value is selected. The final model is then used to predict probabilities on the test set, which are thresholded into class labels using the previously determined optimal cutoff. The function evaluates performance by plotting an ROC curve, computing the AUC, and generating a confusion matrix. Metrics are calculated using a custom evaluation function and returned in both raw list and summary dataframe formats.
+
+```{r}
+XG_Boost <- function(train_data, test_data) {
+  # library(data.table)
+  # library(caret)
+  # library(pROC)
+  # library(xgboost)
+  # library(parallel)
+  
+  # Convert train_data and test_data to data.table format for efficient processing
+  setDT(train_data)
+  setDT(test_data)
+  
+  # Calculate the original percentage of "yes" labels before any processing
+  pct_yes <- mean(train_data$event == "yes")
+  
+  # Partition the train_data into training (80%) and validation (20%) sets
+  set.seed(123) # Ensure reproducibility
+  trainIndex <- createDataPartition(train_data$event, p = 0.8, list = FALSE)
+  train_set <- train_data[trainIndex, ]
+  validation_set <- train_data[-trainIndex, ]
+  
+  # Create model matrices for candidate 1 (no SMOTE)
+  x_train <- model.matrix(event ~ . - 1, data = train_set)
+  y_train <- as.numeric(train_set$event == "yes")
+  x_validation <- model.matrix(event ~ . - 1, data = validation_set)
+  y_validation <- as.numeric(validation_set$event == "yes")
+  
+  dtrain <- xgb.DMatrix(data = x_train, label = y_train)
+  dvalidation <- xgb.DMatrix(data = x_validation, label = y_validation)
+  
+  scale_pos_weight1 <- sum(y_train == 0) / sum(y_train == 1)
+  num_cores <- detectCores()
+  
+  params1 <- list(
+    objective = "binary:logistic",
+    eval_metric = "logloss",
+    max_depth = 6,
+    eta = 0.1,
+    subsample = 0.8,
+    colsample_bytree = 0.8,
+    nthread = num_cores,
+    scale_pos_weight = scale_pos_weight1
+  )
+  
+  xgb_model_no_smote <- xgb.train(
+    params = params1,
+    data = dtrain,
+    nrounds = 200,
+    early_stopping_rounds = 10,
+    watchlist = list(train = dtrain, validation = dvalidation),
+    verbose = 0
+  )
+  
+  val_preds_no_smote <- predict(xgb_model_no_smote, dvalidation)
+  roc_val_no_smote <- roc(response = validation_set$event, predictor = val_preds_no_smote)
+  auc_no_smote <- auc(roc_val_no_smote)
+  optimal_threshold_no_smote <- coords(roc_val_no_smote, "best", ret = "threshold", best.method = "youden")
+  optimal_threshold_no_smote <- as.numeric(optimal_threshold_no_smote)[1]
+  
+  if (pct_yes < 0.15) {
+    # Candidate 2: With SMOTE
+    train_set_smote <- smote_data(train_set)
+    x_train_smote <- model.matrix(event ~ . - 1, data = train_set_smote)
+    y_train_smote <- as.numeric(train_set_smote$event == "yes")
+    dtrain_smote <- xgb.DMatrix(data = x_train_smote, label = y_train_smote)
+    
+    scale_pos_weight2 <- sum(y_train_smote == 0) / sum(y_train_smote == 1)
+    
+    params2 <- list(
+      objective = "binary:logistic",
+      eval_metric = "logloss",
+      max_depth = 6,
+      eta = 0.1,
+      subsample = 0.8,
+      colsample_bytree = 0.8,
+      nthread = num_cores,
+      scale_pos_weight = scale_pos_weight2
+    )
+    
+    xgb_model_smote <- xgb.train(
+      params = params2,
+      data = dtrain_smote,
+      nrounds = 200,
+      early_stopping_rounds = 10,
+      watchlist = list(train = dtrain_smote, validation = dvalidation),
+      verbose = 0
+    )
+    
+    val_preds_smote <- predict(xgb_model_smote, dvalidation)
+    roc_val_smote <- roc(response = validation_set$event, predictor = val_preds_smote)
+    auc_smote <- auc(roc_val_smote)
+    optimal_threshold_smote <- coords(roc_val_smote, "best", ret = "threshold", best.method = "youden")
+    optimal_threshold_smote <- as.numeric(optimal_threshold_smote)[1]
+    
+    if (auc_smote > auc_no_smote) {
+      final_model <- xgb_model_smote
+      final_threshold <- optimal_threshold_smote
+      model_version <- "smote"
+    }
+    else {
+      final_model <- xgb_model_no_smote
+      final_threshold <- optimal_threshold_no_smote
+      model_version <- "no smote"
+    }
+  }
+  else {
+    final_model <- xgb_model_no_smote
+    final_threshold <- optimal_threshold_no_smote
+    model_version <- "no smote"
+  }
+  
+  x_test <- model.matrix(event ~ . - 1, data = test_data)
+  dtest <- xgb.DMatrix(data = x_test)
+  
+  test_preds <- predict(final_model, dtest)
+  binary_prediction_xgb <- ifelse(test_preds > final_threshold, "yes", "no")
+  binary_prediction_xgb <- factor(binary_prediction_xgb, levels = c("yes", "no"))
+  test_data$event <- factor(test_data$event, levels = c("yes", "no"))
+  
+  roc_curve <- roc(response = test_data$event, predictor = test_preds)
+  auc_score <- auc(roc_curve)
+  
+  plot(roc_curve, main = paste("ROC Curve (AUC =", round(auc_score, 4), ")"))
+  
+  confusion_matrix_xgb <- table(
+    factor(binary_prediction_xgb, levels = c("yes", "no")),
+    factor(test_data$event, levels = c("yes", "no"))
+  )
+  
+  if (!all(c("yes", "no") %in% rownames(confusion_matrix_xgb))) {
+    confusion_matrix_xgb <- matrix(0, nrow = 2, ncol = 2, dimnames = list(c("yes", "no"), c("yes", "no")))
+  }
+  
+  metrics_xgb <- calculate_model_metrics(confusion_matrix_xgb, test_preds, "XGBoost", auc_score)
+  metrics_xgb_dataframe <- get_dataframe("XGBoost", metrics_xgb)
+  
+  return(list(metrics_xgb_dataframe = metrics_xgb_dataframe, metrics_xgb = metrics_xgb, 
+              model_version = model_version))
+}
+```
+
+### def elastic_net
+
+The function builds a binary classification model using Elastic Net regularized logistic regression to predict whether an event is "yes" or "no". It starts by converting the input datasets to `data.table` format and calculating the percentage of "yes" labels in the training set. The training data is split into a training subset and a validation subset. For the first candidate model (without SMOTE), feature matrices are constructed and a model is trained using the `glmnet` package with `alpha = 0.5`, which applies an equal mix of L1 (Lasso) and L2 (Ridge) penalties. The optimal regularization strength (`lambda`) is selected via cross-validation (`cv.glmnet`). Predicted probabilities on the validation set are then used to compute the ROC curve, from which an optimal decision threshold is determined using the Youden index. If the positive class proportion is below 15%, a second candidate model is trained on SMOTE-augmented data, following the same training and evaluation process. The two models are compared based on validation AUC, and the better-performing one is selected. This final model is applied to the test set, and the predicted probabilities are thresholded into binary labels using the chosen optimal cutoff. The model’s performance on the test data is then evaluated using a confusion matrix, ROC curve, AUC, and custom metrics. These results are returned a summary dataframe and a raw metrics list and its' model version.
+
+```{r}
+elastic_net <- function(train_data, test_data) {
+  # library(glmnet)
+  # library(data.table)
+  # library(pROC)
+  # library(caret)
+  
+  # Convert train_data and test_data to data.table format for fast operations
+  setDT(train_data)
+  setDT(test_data)
+  
+  # Calculate the original percentage of "yes" labels before any transformation
+  pct_yes <- mean(train_data$event == "yes")
+  
+  # Partition train_data into a training set (80%) and a validation set (20%)
+  set.seed(123)
+  trainIndex <- createDataPartition(train_data$event, p = 0.8, list = FALSE)
+  train_set <- train_data[trainIndex, ]
+  validation_set <- train_data[-trainIndex, ]
+  
+  # Candidate 1: Without SMOTE
+  x_train <- model.matrix(event ~ . - 1, data = train_set)
+  y_train <- train_set$event
+  x_validation <- model.matrix(event ~ . - 1, data = validation_set)
+  
+  elastic_net_model <- glmnet(x_train, y_train, family = "binomial", alpha = 0.5)
+  cv_model <- cv.glmnet(x_train, y_train, family = "binomial", alpha = 0.5)
+  best_lambda <- cv_model$lambda.min
+  
+  predict_probabilities_val <- predict(elastic_net_model, s = best_lambda, newx = x_validation, 
+                                       type = "response")
+  roc_val <- roc(response = validation_set$event, predictor = as.vector(predict_probabilities_val))
+  auc_val <- auc(roc_val)
+  optimal_threshold <- coords(roc_val, "best", ret = "threshold", best.method = "youden")
+  optimal_threshold <- as.numeric(optimal_threshold)[1]
+  
+  if (pct_yes < 0.15) {
+    # Candidate 2: With SMOTE
+    train_set_smote <- smote_data(train_set)
+    x_train_smote <- model.matrix(event ~ . - 1, data = train_set_smote)
+    y_train_smote <- train_set_smote$event
+    
+    elastic_net_model_smote <- glmnet(x_train_smote, y_train_smote, family = "binomial", alpha = 0.5)
+    cv_model_smote <- cv.glmnet(x_train_smote, y_train_smote, family = "binomial", alpha = 0.5)
+    best_lambda_smote <- cv_model_smote$lambda.min
+    
+    predict_probabilities_val_smote <- predict(elastic_net_model_smote, s = best_lambda_smote, 
+                                               newx = x_validation, type = "response")
+    roc_val_smote <- roc(response = validation_set$event, predictor = as.vector(predict_probabilities_val_smote))
+    auc_val_smote <- auc(roc_val_smote)
+    optimal_threshold_smote <- coords(roc_val_smote, "best", ret = "threshold", best.method = "youden")
+    optimal_threshold_smote <- as.numeric(optimal_threshold_smote)[1]
+    
+    if (auc_val_smote > auc_val) {
+      final_model <- elastic_net_model_smote
+      final_lambda <- best_lambda_smote
+      final_threshold <- optimal_threshold_smote
+      model_version <- "smote"
+    }
+    else {
+      final_model <- elastic_net_model
+      final_lambda <- best_lambda
+      final_threshold <- optimal_threshold
+      model_version <- "no smote"
+    }
+  }
+  else {
+    final_model <- elastic_net_model
+    final_lambda <- best_lambda
+    final_threshold <- optimal_threshold
+    model_version <- "no smote"
+  }
+  
+  # Convert the test dataset to matrix format
+  x_test <- model.matrix(event ~ . - 1, data = test_data)
+  
+  # Predict probabilities on the test set using the selected model
+  predict_probabilities_test <- predict(final_model, s = final_lambda, newx = x_test, type = "response")
+  binary_prediction_test <- ifelse(predict_probabilities_test > final_threshold, "yes", "no")
+  
+  # Compute the ROC curve and AUC for the test set predictions
+  roc_curve <- roc(response = test_data$event, predictor = as.vector(predict_probabilities_test))
+  auc_score <- auc(roc_curve)
+  
+  # Plot the ROC curve with the AUC value displayed in the title
+  plot(roc_curve, main = paste("ROC Curve (AUC =", round(auc_score, 4), ")"))
+  
+  # Create a confusion matrix for the test set predictions
+  test_conf_matrix <- table(Predicted = binary_prediction_test, Actual = test_data$event)
+  
+  # Evaluate test set performance using custom metrics
+  metrics_en <- calculate_model_metrics(test_conf_matrix, predict_probabilities_test, "Elastic Net", auc_score)
+  metrics_en_dataframe <- get_dataframe("Elastic Net", metrics_en)
+  
+  return(list(metrics_en_dataframe = metrics_en_dataframe, metrics_en = metrics_en, 
+              model_version = model_version))
+}
+```
+
+## Deep Learning Models
+
+### def deephit_model
+
+The function implements a binary classification model using a deep learning architecture adapted from DeepHit, originally designed for survival analysis. It takes as input training and testing datasets, along with customizable hyperparameters such as number of epochs, network architecture (`num_nodes`), dropout rate, batch size, learning rate, and optional class weights. The function starts with data validation and calculates the proportion of positive ("yes") labels in the training data. The data is split into training and validation subsets for model selection. For candidate 1 (without SMOTE), the training subset is directly used to train a DeepHit-based neural network model via a Python function `train_deephit`, which is sourced from an external Python script (`deephit_model.py`). The model predicts probabilities for the validation set, and the AUC and optimal decision threshold are calculated using the ROC curve. If the proportion of "yes" labels is below 15%, a second candidate model is trained on SMOTE-augmented data, and the same validation set is used for comparison. The two candidate models are evaluated based on AUC, and the better-performing model is selected. The final model is then used to predict on the test set, and probabilities are converted into binary class labels using the selected threshold. Model performance is assessed using a confusion matrix, ROC curve, AUC, and custom evaluation metrics, which are returned in both raw list and dataframe formats. The function allows flexibility in deep learning hyperparameter configuration, with `num_nodes`, `dropout`, `batch_size`, and `lr` being critical for model capacity, regularization, and optimization. The threshold for classification is dynamically optimized using validation AUC rather than fixed, which improves generalization.
+
+```{r}
+deephit_model <- function(train_data, test_data, epochs = 10, num_nodes = c(64L, 64L), 
+                          dropout = 0, batch_size = 256L, lr = 0.001, class_weight = NULL) {
+  # Validate input data: ensure that both train_data and test_data are provided and contain the 'event' column
+  if (is.null(train_data) || is.null(test_data)) {
+    stop("Error: train_data or test_data is NULL!")
+  }
+  if (nrow(train_data) == 0 || nrow(test_data) == 0) {
+    stop("Error: train_data or test_data is empty!")
+  }
+  if (!("event" %in% colnames(train_data)) || !("event" %in% colnames(test_data))) {
+    stop("Error: 'event' column is missing in train_data or test_data!")
+  }
+  
+  # Calculate the original percentage of "yes" labels before any processing
+  pct_yes <- mean(train_data$event == "yes")
+  
+  # Split the training data into training (80%) and validation (20%) subsets for model tuning
+  set.seed(123) # For reproducibility
+  train_idx <- sample(seq_len(nrow(train_data)), size = 0.8 * nrow(train_data))
+  val_idx <- setdiff(seq_len(nrow(train_data)), train_idx)
+  train_subset_orig <- train_data[train_idx, ]
+  val_subset <- train_data[val_idx, ]
+  
+  # Candidate 1: Without SMOTE
+  train_subset_no_smote <- train_subset_orig
+  # Extract features and labels from candidate 1 training subset and validation subset
+  X_train1 <- train_subset_no_smote %>% select(-event)
+  X_val <- val_subset %>% select(-event)
+  y_train1 <- train_subset_no_smote$event
+  y_val <- val_subset$event
+  # Convert feature data frames to matrices
+  X_train1 <- as.matrix(X_train1)
+  X_val <- as.matrix(X_val)
+  # Convert labels to binary numeric values: 1 for "yes", 0 for "no"
+  y_train1 <- ifelse(y_train1 == "yes", 1, 0)
+  y_val_numeric <- ifelse(y_val == "yes", 1, 0)
+  # Package candidate 1 training and validation data into a list for Python
+  train_data_py_1 <- r_to_py(list(
+    X = X_train1,
+    y = y_train1,
+    val_X = X_val,
+    val_y = y_val_numeric,
+    epochs = as.integer(epochs),
+    num_nodes = num_nodes,
+    dropout = dropout,
+    batch_size = as.integer(batch_size),
+    lr = lr
+  ))
+  
+  if (pct_yes < 0.15) {
+    # Candidate 2: With SMOTE (only used if "yes" proportion is less than 15%)
+    train_subset_smote <- smote_data(train_subset_orig)
+    # Extract features and labels from candidate 2 training subset and use same validation subset as candidate 1
+    X_train2 <- train_subset_smote %>% select(-event)
+    y_train2 <- train_subset_smote$event
+    X_train2 <- as.matrix(X_train2)
+    y_train2 <- ifelse(y_train2 == "yes", 1, 0)
+    # Package candidate 2 training data with same validation set
+    train_data_py_2 <- r_to_py(list(
+      X = X_train2,
+      y = y_train2,
+      val_X = X_val,
+      val_y = y_val_numeric,
+      epochs = as.integer(epochs),
+      num_nodes = num_nodes,
+      dropout = dropout,
+      batch_size = as.integer(batch_size),
+      lr = lr
+    ))
+  }
+  
+  # Package test data for prediction
+  X_test <- test_data %>% select(-event)
+  y_test <- test_data$event
+  X_test <- as.matrix(X_test)
+  y_test_numeric <- ifelse(y_test == "yes", 1, 0)
+  test_data_py <- r_to_py(list(
+    X = X_test,
+    y = y_test_numeric
+  ))
+  
+  # Convert class_weight to a Python dictionary if provided
+  class_weight_py <- NULL
+  if (!is.null(class_weight)) {
+    class_weight_py <- r_to_py(as.list(class_weight))
+  }
+  
+  # Load the Python script that implements the DeepHit model
+  source_python("deephit_model.py")
+  
+  # Train candidate 1 DeepHit model by calling the Python training function
+  deep_model_1 <- train_deephit(train_data_py_1, class_weight = class_weight_py)
+  # Predict probabilities on the validation set for candidate 1
+  val_pred_prob_1 <- deep_model_1$predict_proba(train_data_py_1[["val_X"]])
+  val_pred_prob_1 <- py_to_r(val_pred_prob_1)
+  # Assume the second column corresponds to the probability for class "1"
+  val_pred_prob_class1_1 <- val_pred_prob_1[, 2]
+  # Calculate the ROC curve on the validation data for candidate 1 using continuous predicted probabilities
+  roc_val_1 <- roc(response = y_val_numeric, predictor = as.vector(val_pred_prob_class1_1))
+  auc_val_1 <- auc(roc_val_1)
+  optimal_threshold_1 <- coords(roc_val_1, "best", ret = "threshold", best.method = "youden")
+  optimal_threshold_1 <- as.numeric(optimal_threshold_1)[1]
+  
+  if (pct_yes < 0.15) {
+    # Train candidate 2 DeepHit model by calling the Python training function
+    deep_model_2 <- train_deephit(train_data_py_2, class_weight = class_weight_py)
+    # Predict probabilities on the validation set for candidate 2
+    val_pred_prob_2 <- deep_model_2$predict_proba(train_data_py_2[["val_X"]])
+    val_pred_prob_2 <- py_to_r(val_pred_prob_2)
+    # Assume the second column corresponds to the probability for class "1"
+    val_pred_prob_class1_2 <- val_pred_prob_2[, 2]
+    # Calculate the ROC curve on the validation data for candidate 2 using continuous predicted probabilities
+    roc_val_2 <- roc(response = y_val_numeric, predictor = as.vector(val_pred_prob_class1_2))
+    auc_val_2 <- auc(roc_val_2)
+    optimal_threshold_2 <- coords(roc_val_2, "best", ret = "threshold", best.method = "youden")
+    optimal_threshold_2 <- as.numeric(optimal_threshold_2)[1]
+    
+    # Decide which candidate model to use based on validation AUC
+    if (auc_val_2 > auc_val_1) {
+      final_model <- deep_model_2
+      final_threshold <- optimal_threshold_2
+      model_version <- "smote"
+    }
+    else {
+      final_model <- deep_model_1
+      final_threshold <- optimal_threshold_1
+      model_version <- "no smote"
+    }
+  }
+  else {
+    final_model <- deep_model_1
+    final_threshold <- optimal_threshold_1
+    model_version <- "no smote"
+  }
+  
+  # Use the selected DeepHit model to predict probabilities on the test dataset
+  pred_prob <- final_model$predict_proba(test_data_py[["X"]])
+  pred_prob <- py_to_r(pred_prob)
+  # Assume that the second column corresponds to the probability for class "1"
+  pred_prob_class1 <- pred_prob[, 2]
+  # Calculate the ROC curve and AUC score for the test set using continuous predicted probabilities
+  roc_curve <- roc(response = y_test_numeric, predictor = as.vector(pred_prob_class1))
+  auc_score <- auc(roc_curve)
+  # Plot the ROC curve with the AUC value displayed in the title
+  plot(roc_curve, main = paste("ROC Curve (AUC =", round(auc_score, 4), ")"))
+  # Convert predicted probabilities to binary class labels using the optimal threshold
+  predictions <- ifelse(pred_prob_class1 > final_threshold, 1, 0)
+  # Create a confusion matrix comparing the predicted labels to the actual test labels
+  test_conf_matrix <- table(
+    Predicted = factor(predictions, levels = c(0, 1)),
+    Actual = factor(y_test_numeric, levels = c(0, 1))
+  )
+  # Calculate model performance metrics using a custom function
+  metrics_dh <- calculate_model_metrics(test_conf_matrix, predictions, "DeepHit", auc_score)
+  metrics_dh_dataframe <- get_dataframe("DeepHit", metrics_dh)
+  return(list(metrics_dh_dataframe = metrics_dh_dataframe, metrics_dh = metrics_dh, 
+              model_version = model_version))
+}
+```
+
+### def deephit_model.py
+
+This implementation defines the DeepHit model using TensorFlow and Keras for survival analysis and classification tasks. The model is structured as a feedforward neural network with two hidden layers, each containing 64 neurons, batch normalization for training stability, and dropout layers to prevent overfitting. The final output layer applies a softmax activation function for binary classification. A key feature of this model is the custom loss function, `combined_loss`, which combines categorical cross-entropy with a ranking loss (`ranking_loss`). The ranking loss ensures that the model prioritizes correctly ranking event probabilities, using a margin-based approach to encourage the predicted probability of positive samples to be higher than negative samples. The `DeephitModel` class encapsulates model creation, compilation, training, and prediction. The training function includes early stopping and learning rate reduction callbacks to prevent overfitting and improve convergence. The `train_deephit` function orchestrates the training process by preparing input data, converting labels into a one-hot format, and initializing the model. It also accommodates class weights to handle imbalanced datasets. If validation data is available, the model is tuned based on validation loss; otherwise, it trains solely on the training data. During inference, the model provides both class probabilities (`predict_proba`) and discrete class predictions (`predict`). 
+
+```{python}
+import numpy as np # For numerical operations
+import tensorflow.keras.backend as K # For backend tensor operations in TensorFlow
+from tensorflow.keras.models import Sequential # To create a sequential neural network model
+# Added BatchNormalization for training stability
+from tensorflow.keras.layers import Dense, Dropout, Input, BatchNormalization
+from tensorflow.keras.optimizers import Adam # To use the Adam optimizer during training
+from tensorflow.keras.utils import to_categorical # To convert labels into one-hot encoded format
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau # To control training with callbacks
+
+def ranking_loss(y_true, y_pred):
+    """
+    Computes a ranking loss which encourages the average predicted probability
+    for the positive class to exceed that of the negative class by at least a fixed margin.
+    
+    Parameters:
+    - y_true: Ground truth one-hot encoded labels.
+    - y_pred: Predicted probabilities for each class.
+    
+    Returns:
+    - A tensor representing the ranking loss value.
+    """
+    # Extract the predicted probability for class 1 (second column) and clip it to avoid numerical issues.
+    p = K.clip(y_pred[:, 1], 1e-7, 1-1e-7)
+    # Create a mask for positive samples: 1 if the true class is positive, 0 otherwise.
+    pos_mask = K.cast(K.equal(K.argmax(y_true, axis=-1), 1), K.floatx())
+    # Create a mask for negative samples: complement of the positive mask.
+    neg_mask = 1 - pos_mask
+    # Compute the mean predicted probability for positive samples.
+    pos_mean = K.sum(p * pos_mask) / (K.sum(pos_mask) + K.epsilon())
+    # Compute the mean predicted probability for negative samples.
+    neg_mean = K.sum(p * neg_mask) / (K.sum(neg_mask) + K.epsilon())
+    # Define a fixed margin value that the difference between positive and negative means should exceed.
+    margin = 0.1
+    # Return the ranking loss: if (pos_mean - neg_mean) is less than margin, return the difference, otherwise
+    # zero.
+    return K.maximum(0.0, margin - (pos_mean - neg_mean))
+
+def combined_loss(y_true, y_pred):
+    """
+    Combined loss function that adds the standard categorical crossentropy loss
+    and a weighted ranking loss.
+    
+    Parameters:
+    - y_true: Ground truth one-hot encoded labels.
+    - y_pred: Predicted probabilities for each class.
+    
+    Returns:
+    - A tensor representing the total loss.
+    """
+    # Compute categorical crossentropy loss.
+    ce = K.categorical_crossentropy(y_true, y_pred)
+    # Compute ranking loss.
+    rl = ranking_loss(y_true, y_pred)
+    # Define weight for the ranking loss component.
+    alpha = 0.2
+    # Return the sum of categorical crossentropy loss and the weighted ranking loss.
+    return ce + alpha * rl
+
+class DeephitModel:
+    def __init__(self, input_dim, hidden_units=64):
+        """
+        Initializes the DeepHit model with a specified input dimension and hidden layer size.
+        
+        Parameters:
+        - input_dim: Integer, number of input features.
+        - hidden_units: Integer, number of neurons in each hidden layer.
+        """
+        # Build a sequential neural network model.
+        self.model = Sequential([
+            # Input layer.
+            Input(shape=(input_dim,)),
+            # First hidden dense layer with ReLU activation.
+            Dense(hidden_units, activation='relu'),
+            # BatchNormalization layer to stabilize and accelerate training.
+            BatchNormalization(),
+            # Dropout layer to prevent overfitting.
+            Dropout(0.2),
+            # Second hidden dense layer with ReLU activation.
+            Dense(hidden_units, activation='relu'),
+            # Another BatchNormalization layer.
+            BatchNormalization(),
+            # Second Dropout layer.
+            Dropout(0.2),
+            # Output layer with softmax activation for binary classification.
+            Dense(2, activation='softmax')
+        ])
+        # Compile the model with Adam optimizer, combined loss function, and accuracy metric.
+        # Gradient clipping (clipnorm=1.0) is applied to avoid exploding gradients.
+        self.model.compile(optimizer=Adam(learning_rate=0.0005, clipnorm=1.0),
+                           loss=combined_loss,
+                           metrics=['accuracy'])
+    
+    def fit(self, X, y, epochs=10, batch_size=32, validation_data=None, class_weight=None):
+        """
+        Trains the DeepHit model using early stopping and learning rate reduction callbacks.
+        
+        Parameters:
+        - X: Numpy array of training features.
+        - y: Numpy array of one-hot encoded training labels.
+        - epochs: Integer, maximum number of training epochs.
+        - batch_size: Integer, training batch size.
+        - validation_data: Tuple (val_X, val_y) of validation features and one-hot encoded labels.
+        - class_weight: Dictionary, mapping class indices to a weight to handle class imbalance.
+        """
+        # Choose which metric to monitor for early stopping: validation loss if validation data is provided.
+        monitor_metric = 'val_loss' if validation_data is not None else 'loss'
+        callbacks = [
+            EarlyStopping(monitor=monitor_metric, patience=3, restore_best_weights=True),
+            ReduceLROnPlateau(monitor=monitor_metric, factor=0.5, patience=2, min_lr=1e-6)
+        ]
+        # Fit the model with the specified parameters.
+        self.model.fit(X, y, epochs=epochs, batch_size=batch_size, verbose=0,
+                       validation_data=validation_data, callbacks=callbacks,
+                       class_weight=class_weight)
+    
+    def predict(self, X):
+        """
+        Predicts class labels for the input features.
+        
+        Parameters:
+        - X: Numpy array of input features.
+        
+        Returns:
+        - A numpy array of predicted class labels (0 or 1).
+        """
+        # Predict probabilities and select the class with the highest probability.
+        preds = self.model.predict(X)
+        return np.argmax(preds, axis=1)
+    
+    def predict_proba(self, X):
+        """
+        Predicts class probabilities for the given input.
+        
+        Parameters:
+        - X: Numpy array of input features.
+        
+        Returns:
+        - A numpy array of predicted probabilities for each class.
+        """
+        return self.model.predict(X)
+
+def train_deephit(train_data, class_weight=None):
+    """
+    Trains a DeepHit model using the provided training data.
+    
+    Parameters:
+    - train_data: Dictionary with keys "X", "y", and optionally "val_X", "val_y".
+                 "X" is the training features and "y" are the corresponding labels (assumed to be 0/1).
+    - class_weight: Optional dictionary for class weights to handle imbalanced data.
+    
+    Returns:
+    - A trained instance of DeephitModel.
+    """
+    # Convert training features and labels to numpy arrays.
+    X = np.array(train_data["X"])
+    y = np.array(train_data["y"])
+    # Ensure the feature matrix has two dimensions.
+    if (X.ndim == 1):
+        X = X.reshape(-1, 1)
+    # Validate that there is at least one feature.
+    if (X.shape[1] == 0):
+        raise ValueError("Invalid input: X has no features")
+    # Determine the number of input features.
+    input_dim = X.shape[1]
+    # Convert labels to one-hot encoded format for binary classification.
+    y_onehot = to_categorical(y, num_classes=2)
+    
+    # Initialize the DeepHit model.
+    model = DeephitModel(input_dim=input_dim, hidden_units=64)
+    
+    # If validation data is provided, prepare and use it during training.
+    if ("val_X" in train_data and "val_y" in train_data):
+        val_X = np.array(train_data["val_X"])
+        val_y = np.array(train_data["val_y"])
+        if (val_X.ndim == 1):
+            val_X = val_X.reshape(-1, 1)
+        val_y_onehot = to_categorical(val_y, num_classes=2)
+        model.fit(X, y_onehot, epochs=train_data["epochs"], batch_size=train_data["batch_size"], 
+                  validation_data=(val_X, val_y_onehot), class_weight=class_weight)
+    else:
+        # Train without validation data if not provided.
+        model.fit(X, y_onehot, epochs=train_data["epochs"], 
+        batch_size=train_data["batch_size"], class_weight=class_weight)
+    
+    return model
+```
+
+### def deepLearning_classification_model
+
+The function defines a binary classification pipeline using a customizable deep neural network architecture implemented in Python. It expects training and test data with an `event` column indicating the target labels ("yes" or "no"). After validating inputs, the function calculates the proportion of positive ("yes") labels and splits the training data into training and validation subsets. The first candidate model is trained on the original (non-SMOTE) training subset. The features are extracted and converted into matrix format, and the labels are binarized. The model is trained using a Python function `train_deepLearning`, where key hyperparameters like `epochs`, `num_nodes` (network architecture), `dropout`, `batch_size`, `lr` (learning rate), and optional `class_weight` are passed. Validation predictions are used to compute the ROC curve, AUC, and optimal classification threshold via the Youden index. If the proportion of positive cases is less than 15%, a second candidate model is trained on SMOTE-augmented data. The same process is followed to compute its validation AUC and threshold. The candidate with the better validation performance is selected as the final model. The chosen model is then used to predict probabilities on the test set, and predictions are thresholded into binary labels. Model performance is evaluated using ROC and AUC, a confusion matrix, and custom metrics. Results are returned as both a raw list, a summary dataframe and its' model version.
+
+```{r}
+deepLearning_classification_model <- function(train_data, test_data, epochs = 10, num_nodes = c(64L, 64L), 
+                                              dropout = 0, batch_size = 256L, lr = 0.001, class_weight = NULL) {
+  # Check that data is provided and contains the 'event' column
+  if (is.null(train_data) || is.null(test_data)) {
+    stop("Error: train_data or test_data is NULL!")
+  }
+  if (nrow(train_data) == 0 || nrow(test_data) == 0) {
+    stop("Error: train_data or test_data is empty!")
+  }
+  if (!("event" %in% colnames(train_data)) || !("event" %in% colnames(test_data))) {
+    stop("Error: 'event' column is missing!")
+  }
+  
+  # Calculate the original percentage of "yes" labels before any processing
+  pct_yes <- mean(train_data$event == "yes")
+  
+  # Split training data into training (80%) and validation (20%) subsets
+  set.seed(123)
+  train_idx <- sample(seq_len(nrow(train_data)), size = 0.8 * nrow(train_data))
+  val_idx <- setdiff(seq_len(nrow(train_data)), train_idx)
+  train_subset_orig <- train_data[train_idx, ]
+  val_subset <- train_data[val_idx, ]
+  
+  # Candidate 1: Without SMOTE
+  X_train1 <- as.matrix(train_subset_orig %>% select(-event))
+  X_val <- as.matrix(val_subset %>% select(-event))
+  y_train1 <- ifelse(train_subset_orig$event == "yes", 1, 0)
+  y_val_numeric <- ifelse(val_subset$event == "yes", 1, 0)
+  
+  train_data_py_1 <- r_to_py(list(
+    X = X_train1,
+    y = y_train1,
+    val_X = X_val,
+    val_y = y_val_numeric,
+    epochs = as.integer(epochs),
+    num_nodes = num_nodes,
+    dropout = dropout,
+    batch_size = as.integer(batch_size),
+    lr = lr
+  ))
+  
+  X_test <- as.matrix(test_data %>% select(-event))
+  y_test <- test_data$event
+  y_test_numeric <- ifelse(y_test == "yes", 1, 0)
+  test_data_py <- r_to_py(list(
+    X = X_test,
+    y = y_test_numeric
+  ))
+  
+  class_weight_py <- NULL
+  if (!is.null(class_weight)) {
+    class_weight_py <- r_to_py(as.list(class_weight))
+  }
+  
+  source_python("deepLearning_classification_model.py")
+  
+  deepLearning_model_1 <- train_deepLearning(train_data_py_1, class_weight = class_weight_py)
+  val_pred_prob_1 <- py_to_r(deepLearning_model_1$predict_proba(train_data_py_1[["val_X"]]))
+  val_pred_prob_class1_1 <- val_pred_prob_1[, 2]
+  roc_val_1 <- roc(response = y_val_numeric, predictor = as.vector(val_pred_prob_class1_1))
+  auc_val_1 <- auc(roc_val_1)
+  optimal_threshold_1 <- coords(roc_val_1, "best", ret = "threshold", best.method = "youden")
+  optimal_threshold_1 <- as.numeric(optimal_threshold_1)[1]
+  print(paste("Candidate 1 Validation AUC:", round(auc_val_1, 4)))
+  
+  if (pct_yes < 0.15) {
+    # Candidate 2: With SMOTE
+    train_subset_smote <- smote_data(train_subset_orig)
+    X_train2 <- as.matrix(train_subset_smote %>% select(-event))
+    y_train2 <- ifelse(train_subset_smote$event == "yes", 1, 0)
+    
+    train_data_py_2 <- r_to_py(list(
+      X = X_train2,
+      y = y_train2,
+      val_X = X_val,
+      val_y = y_val_numeric,
+      epochs = as.integer(epochs),
+      num_nodes = num_nodes,
+      dropout = dropout,
+      batch_size = as.integer(batch_size),
+      lr = lr
+    ))
+    
+    deepLearning_model_2 <- train_deepLearning(train_data_py_2, class_weight = class_weight_py)
+    val_pred_prob_2 <- py_to_r(deepLearning_model_2$predict_proba(train_data_py_2[["val_X"]]))
+    val_pred_prob_class1_2 <- val_pred_prob_2[, 2]
+    roc_val_2 <- roc(response = y_val_numeric, predictor = as.vector(val_pred_prob_class1_2))
+    auc_val_2 <- auc(roc_val_2)
+    optimal_threshold_2 <- coords(roc_val_2, "best", ret = "threshold", best.method = "youden")
+    optimal_threshold_2 <- as.numeric(optimal_threshold_2)[1]
+    print(paste("Candidate 2 Validation AUC:", round(auc_val_2, 4)))
+    
+    if (auc_val_2 > auc_val_1) {
+      final_model <- deepLearning_model_2
+      final_threshold <- optimal_threshold_2
+      model_version <- "smote"
+    }
+    else {
+      final_model <- deepLearning_model_1
+      final_threshold <- optimal_threshold_1
+      model_version <- "no smote"
+    }
+  }
+  else {
+    final_model <- deepLearning_model_1
+    final_threshold <- optimal_threshold_1
+    model_version <- "no smote"
+  }
+  
+  pred_prob <- py_to_r(final_model$predict_proba(test_data_py[["X"]]))
+  pred_prob_class1 <- pred_prob[, 2]
+  roc_curve <- roc(response = y_test_numeric, predictor = as.vector(pred_prob_class1))
+  auc_score <- auc(roc_curve)
+  plot(roc_curve, main = paste("ROC Curve (AUC =", round(auc_score, 4), ")"))
+  
+  predictions <- ifelse(pred_prob_class1 > final_threshold, 1, 0)
+  test_conf_matrix <- table(
+    Predicted = factor(predictions, levels = c(0, 1)),
+    Actual = factor(y_test_numeric, levels = c(0, 1))
+  )
+  
+  metrics_dlc <- calculate_model_metrics(test_conf_matrix, predictions, "DeepLearningClassifier", auc_score)
+  metrics_dlc_dataframe <- get_dataframe("DeepLearningClassifier", metrics_dlc)
+  return(list(metrics_dlc_dataframe = metrics_dlc_dataframe, metrics_dlc = metrics_dlc, 
+              model_version = model_version))
+}
+```
+
+### deepLearning_classification_model.py
+
+This implementation defines a deep learning classification model using TensorFlow and Keras. The `DeepLearningClassifier` class constructs a fully connected neural network with two hidden layers, batch normalization for stable training, and dropout to prevent overfitting. A key feature of this model is the inclusion of a custom transformation layer (`transformation_layer`), which applies a logarithmic function to simulate risk transformation. The final output layer applies a softmax activation function for binary classification. The model is trained using categorical cross-entropy loss and the Adam optimizer, with gradient clipping to prevent exploding gradients. The `fit` method incorporates early stopping and learning rate reduction callbacks to improve convergence and prevent unnecessary training cycles. The model also supports weighted class training to address class imbalance. The `train_deepLearning` function prepares the dataset by converting labels into a one-hot format and handling validation data if available. It initializes the deep learning model with the specified number of input features and trains it accordingly. The model can return both class probabilities (`predict_proba`) and discrete class predictions (`predict`).
+
+```{python}
+import numpy as np # Import Numpy For Numerical Operations
+import tensorflow.keras.backend as K # Import Keras Backend For Tensor Operations
+from tensorflow.keras.models import Sequential # Import Sequential Model Constructor
+# Added BatchNormalization for stability
+from tensorflow.keras.layers import Dense, Dropout, Input, Lambda, BatchNormalization
+from tensorflow.keras.optimizers import Adam # Import Adam Optimizer For Model Training
+from tensorflow.keras.utils import to_categorical # Import Utility To Convert Labels To One-Hot Encoding
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau # Import Callbacks For Training Control
+
+def transformation_layer(x):
+    """
+    Applies a logarithmic transformation to simulate the transformation of the risk function.
+    
+    This function applies the operation log(1 + x) on the input tensor.
+    To avoid issues with taking the logarithm of zero or negative values, the input is first clipped.
+    
+    Parameters:
+    - x: Input tensor.
+    
+    Returns:
+    - A tensor representing the log-transformed input.
+    """
+    # Clip the input to ensure 1.0 + x is greater than zero.
+    clipped_input = K.clip(1.0 + x, K.epsilon(), None)
+    # Return the natural logarithm of the clipped input.
+    return K.log(clipped_input)
+
+class DeepLearningClassifier:
+    def __init__(self, input_dim, hidden_units=64):
+        """
+        Initializes a deep neural network model for binary classification using the Transformation approach.
+        This model includes a custom transformation layer to simulate risk transformation.
+        
+        Parameters:
+        - input_dim: Integer, the number of input features.
+        - hidden_units: Integer, the number of neurons in each hidden layer.
+        """
+        # Build a sequential model with:
+        # - An input layer that accepts 'input_dim' features.
+        # - Two Dense layers with ReLU activation, each followed by BatchNormalization and Dropout.
+        # - A Lambda layer that applies the custom transformation_layer.
+        # - An output Dense layer with softmax activation for binary classification.
+        self.model = Sequential([
+            Input(shape=(input_dim,)),                    # Input layer with specified dimension.
+            Dense(hidden_units, activation='relu'),       # First dense layer with ReLU activation.
+            BatchNormalization(),                         # BatchNormalization for improved training stability.
+            Dropout(0.2),                                 # Dropout layer to reduce overfitting.
+            Dense(hidden_units, activation='relu'),       # Second dense layer with ReLU activation.
+            BatchNormalization(),                         # Additional BatchNormalization.
+            Lambda(transformation_layer),         # Custom transformation layer to simulate risk transformation.
+            Dense(2, activation='softmax')                # Output layer for binary classification.
+        ])
+        # Compile the model with the Adam optimizer, using categorical crossentropy loss,
+        # and including accuracy as a performance metric. Gradient clipping is applied to avoid exploding
+        # gradients.
+        self.model.compile(optimizer=Adam(learning_rate=0.0005, clipnorm=1.0),
+                           loss='categorical_crossentropy',
+                           metrics=['accuracy'])
+    
+    def fit(self, X, y, epochs=10, batch_size=32, validation_data=None, class_weight=None):
+        """
+        Trains the Transformation model using early stopping and learning rate reduction callbacks.
+        
+        Parameters:
+        - X: Numpy array of training features.
+        - y: Numpy array of one-hot encoded training labels.
+        - epochs: Integer, maximum number of training epochs.
+        - batch_size: Integer, size of each training batch.
+        - validation_data: Tuple (val_X, val_y) for validation during training.
+        - class_weight: Dictionary mapping class indices to weights, to handle class imbalance.
+        """
+        # Determine the metric to monitor: 'val_loss' if validation data is provided; otherwise 'loss'.
+        monitor_metric = 'val_loss' if validation_data is not None else 'loss'
+        callbacks = [
+            EarlyStopping(monitor=monitor_metric, patience=3, restore_best_weights=True),
+            ReduceLROnPlateau(monitor=monitor_metric, factor=0.5, patience=2, min_lr=1e-6)
+        ]
+        # Fit the model with the provided training data and callbacks.
+        self.model.fit(X, y, epochs=epochs, batch_size=batch_size, verbose=0,
+                       validation_data=validation_data, callbacks=callbacks,
+                       class_weight=class_weight)
+    
+    def predict(self, X):
+        """
+        Predicts class labels for the given input features.
+        
+        Parameters:
+        - X: Numpy array of input features.
+        
+        Returns:
+        - A numpy array of predicted class labels (0 or 1) for each sample.
+        """
+        # Generate predictions (probabilities) and choose the class with the highest probability.
+        preds = self.model.predict(X)
+        return np.argmax(preds, axis=1)
+    
+    def predict_proba(self, X):
+        """
+        Predicts class probabilities for the given input features.
+        
+        Parameters:
+        - X: Numpy array of input features.
+        
+        Returns:
+        - A numpy array of predicted probabilities for each class.
+        """
+        return self.model.predict(X)
+
+def train_deepLearning(train_data, class_weight=None):
+    """
+    Trains a Transformation model using the provided training data.
+    
+    Parameters:
+    - train_data: A dictionary with the following keys:
+         "X": Numpy array of training features.
+         "y": Numpy array of training labels (assumed to be 0 or 1).
+         Optionally, "val_X" and "val_y" for validation data.
+    - class_weight: Optional dictionary for class weights to handle imbalanced data.
+    
+    Returns:
+    - A trained instance of DeepLearningClassifier.
+    """
+    # Convert training features and labels to numpy arrays.
+    X = np.array(train_data["X"])
+    y = np.array(train_data["y"])
+    # Ensure that X has at least two dimensions.
+    if (X.ndim == 1):
+        X = X.reshape(-1, 1)
+    # Validate that there is at least one feature.
+    if (X.shape[1] == 0):
+        raise ValueError("Invalid input: X has no features")
+    # Determine the number of input features.
+    input_dim = X.shape[1]
+    # Convert labels to one-hot encoded format for binary classification.
+    y_onehot = to_categorical(y, num_classes=2)
+    
+    # Initialize the DeepLearningClassifier with the specified input dimension and hidden units.
+    model = DeepLearningClassifier(input_dim=input_dim, hidden_units=64)
+    
+    # If validation data is provided in the dictionary, prepare and use it during training.
+    if (("val_X" in train_data) and ("val_y" in train_data)):
+        val_X = np.array(train_data["val_X"])
+        val_y = np.array(train_data["val_y"])
+        if (val_X.ndim == 1):
+            val_X = val_X.reshape(-1, 1)
+        val_y_onehot = to_categorical(val_y, num_classes=2)
+        # Train the model using both training and validation data.
+        model.fit(X, y_onehot, epochs=train_data["epochs"], batch_size=train_data["batch_size"], 
+                  validation_data=(val_X, val_y_onehot), class_weight=class_weight)
+    else:
+        # Train the model using only the training data if no validation data is provided.
+        model.fit(X, y_onehot, epochs=train_data["epochs"], 
+        batch_size=train_data["batch_size"], class_weight=class_weight)
+    
+    # Return the trained DeepLearningClassifier instance.
+    return model
+```

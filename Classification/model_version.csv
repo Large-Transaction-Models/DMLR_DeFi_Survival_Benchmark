@@ -1,0 +1,17 @@
+model_version,Logistic.Regression,Decision.Tree,XGBoost,Elastic.Net,DeepHit,DeepLearningClassifier
+borrow + account liquidated,no smote,no smote,no smote,no smote,no smote,no smote
+borrow + deposit,no smote,no smote,no smote,no smote,no smote,no smote
+borrow + repay,no smote,no smote,no smote,no smote,no smote,no smote
+borrow + withdraw,no smote,no smote,no smote,no smote,no smote,no smote
+deposit + account liquidated,smote,no smote,no smote,smote,no smote,no smote
+deposit + borrow,no smote,no smote,no smote,no smote,no smote,no smote
+deposit + repay,no smote,no smote,no smote,no smote,no smote,no smote
+deposit + withdraw,no smote,no smote,no smote,no smote,no smote,no smote
+repay + account liquidated,no smote,no smote,no smote,no smote,no smote,no smote
+repay + borrow,no smote,no smote,no smote,no smote,no smote,no smote
+repay + deposit,no smote,no smote,no smote,no smote,no smote,no smote
+repay + withdraw,no smote,smote,no smote,no smote,no smote,no smote
+withdraw + account liquidated,smote,smote,no smote,smote,no smote,no smote
+withdraw + borrow,no smote,no smote,no smote,no smote,no smote,no smote
+withdraw + repay,no smote,no smote,no smote,no smote,no smote,no smote
+withdraw + deposit,no smote,no smote,no smote,no smote,no smote,no smote

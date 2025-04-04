@@ -1,0 +1,270 @@
+---
+title: "RMST & Stats Tests"
+author: "Zihan Nie"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+subtitle: "DAR Project group: 'DeFi'"
+---
+```{r setup, include=FALSE}
+# Required R package installation; RUN THIS BLOCK BEFORE ATTEMPTING TO KNIT THIS NOTEBOOK!!!
+# This section  install packages if they are not already installed. 
+# This block will not be shown in the knit file.
+knitr::opts_chunk$set(echo = TRUE)
+
+# Set the default CRAN repository
+local({r <- getOption("repos")
+       r["CRAN"] <- "http://cran.r-project.org" 
+       options(repos=r)
+})
+
+# Required packages for M20 LIBS analysis
+if (!require("rmarkdown")) {
+  install.packages("rmarkdown")
+  library(rmarkdown)
+}
+if (!require("tidyverse")) {
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+if (!require("stringr")) {
+  install.packages("stringr")
+  library(stringr)
+}
+
+if (!require("ggbiplot")) {
+  install.packages("ggbiplot")
+  library(ggbiplot)
+}
+
+if (!require("pheatmap")) {
+  install.packages("pheatmap")
+  library(pheatmap)
+}
+if(!require("randomForest")) {
+  install.packages("randomForest")
+  library(randomForest)
+}
+if(!require("caret")) {
+  install.packages("caret")
+  library(caret)
+}
+if(!require("survival")){
+  install.packages("survival")
+  library(survival)
+}
+if(!require("survminer")){
+  install.packages("survminer")
+  library(survminer)
+}
+if(!require("ggplot2")){
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+
+if(!require("kableExtra")){
+  install.packages("kableExtra")
+  library(kableExtra)
+}
+if(!require("rpart")){
+  install.packages("rpart")
+  library(rpart)
+}
+
+if(!require("survRM2")){
+  install.packages("survRM2")
+  library(survRM2)
+}
+
+library(dplyr)
+library(survival)
+library(splines)
+library(gridExtra)  # For arranging multiple plots
+library(tibble)  # For creating summary tables
+library(survRM2)
+```
+### Sample code of RMST Calculation
+Below, we calculate the RMST values for each pair of the index and outcome event using three levels of tau as the convergence tolerance thresholds (1%, 5%, and 10%). 
+* Caution: May take a while to run the following code. 
+```{r}
+# Define index events and corresponding outcome events
+index_events <- list(
+  "Borrow" = c("Account Liquidated", "Deposit", "Full Repay", "Liquidation Performed", "Repay", "Withdraw"),
+  "Deposit" = c("Account Liquidated", "Borrow", "Liquidation Performed", "Repay", "Withdraw"),
+  "Repay" = c("Account Liquidated", "Borrow", "Deposit", "Liquidation Performed", "Withdraw"),
+  "Withdraw" = c("Account Liquidated", "Borrow", "Deposit", "Liquidation Performed", "Repay")
+)
+
+# List to store plots and convergence data
+km_plots <- list()
+rmst_plots <- list()
+convergence_results <- tibble(IndexEvent = character(), OutcomeEvent = character(), ConvergedTau_1 = numeric(), ConvergedRMST_1 = numeric(), ConvergedTau_5 = numeric(), ConvergedRMST_5 = numeric(), ConvergedTau_10 = numeric(), ConvergedRMST_10 = numeric())
+plot_index <- 1
+
+# Loop through each index event and outcome event pair to create survival data
+for (indexEvent in names(index_events)) {
+  for (outcomeEvent in index_events[[indexEvent]]) {
+    # Create the file path
+    survivalData_path <- paste0("/academics/MATP-4910-F24/DAR-DeFi-LTM-F24/Data/Survival_Data/",
+                                indexEvent, "/", outcomeEvent, "/survivalData.rds")
+    
+    # Read the survival data
+    survivalData <- tryCatch({
+      read_rds(survivalData_path)
+    }, error = function(e) {
+      warning(paste("Could not read file:", survivalData_path))
+      next  # Skip to the next iteration if file not found
+    })
+    
+    # Clean the data
+    survivalData_clean <- survivalData %>%
+      filter(!is.na(timeDiff) & timeDiff > 0 & !is.na(status))
+    
+    # Check if the cleaned data is empty or malfunctioning
+    if (nrow(survivalData_clean) == 0) {
+      warning(paste("Data is empty or malfunctioning for pair:", indexEvent, "to", outcomeEvent))
+      next  # Skip to the next iteration if data is empty
+    }
+    
+    # Ensure timeDiff is numeric and convert to days
+    survivalData_clean$timeDiff <- as.numeric(survivalData_clean$timeDiff) / 86400  # Convert seconds to days
+    
+    # Create the survival object
+    surv_object <- Surv(time = survivalData_clean$timeDiff, event = survivalData_clean$status)
+    
+    # Fit the Kaplan-Meier estimator
+    km_fit <- survfit(surv_object ~ 1)
+    
+    # Extract times and survival probabilities from the Kaplan-Meier fit
+    times <- km_fit$time
+    surv_probs <- km_fit$surv
+    
+    # Ensure the start at time = 0
+    times <- c(0, times)
+    surv_probs <- c(1, surv_probs)
+    
+    # Fit a monotonic spline to the survival probabilities
+    spline_fit <- splinefun(times, surv_probs, method = "monoH.FC")  # Monotonic spline to reduce extreme gradients
+    
+    # Define a sequence of cutoff times to evaluate RMST convergence
+    tau_values <- seq(1, min(600, max(times)), by = 1)  # Evaluate RMST from day 1 to up to 600 or max observed days
+    rmst_values <- numeric(length(tau_values))
+    
+    # Calculate RMST for each cutoff value with a try-catch to handle potential integration errors
+    for (i in seq_along(tau_values)) {
+      tau <- tau_values[i]
+      
+      # Use tryCatch to handle integration issues gracefully
+      rmst_values[i] <- tryCatch({
+        integrate(spline_fit, lower = 0, upper = tau)$value
+      }, error = function(e) {
+        # If there's an error, return NA and print a warning
+        NA
+      })
+    }
+    
+    # Remove NA values for plotting
+    valid_indices <- !is.na(rmst_values)
+    valid_tau_values <- tau_values[valid_indices]
+    valid_rmst_values <- rmst_values[valid_indices]
+    
+    # Find the point where RMST converges (change is below a tolerance level for 1%, 5%, or 10%)
+    convergence_thresholds <- c(0.01, 0.05, 0.10)  # 1%, 5%, 10% thresholds
+    converged_values <- list(NA, NA, NA, NA, NA, NA)
+    for (tolerance in convergence_thresholds) {
+      converged_index <- which(abs(diff(valid_rmst_values) / valid_rmst_values[-length(valid_rmst_values)]) < tolerance)[1]  # Find the first instance where relative change is below tolerance
+      
+      if (!is.na(converged_index)) {
+        converged_tau <- valid_tau_values[converged_index + 1]
+        converged_rmst <- valid_rmst_values[converged_index + 1]
+        if (tolerance == 0.01) {
+          converged_values[1] <- round(converged_tau, 2)
+          converged_values[2] <- round(converged_rmst, 2)
+        } else if (tolerance == 0.05) {
+          converged_values[3] <- round(converged_tau, 2)
+          converged_values[4] <- round(converged_rmst, 2)
+        } else if (tolerance == 0.10) {
+          converged_values[5] <- round(converged_tau, 2)
+          converged_values[6] <- round(converged_rmst, 2)
+        }
+      }
+    }
+    
+    convergence_results <- convergence_results %>%
+      add_row(IndexEvent = indexEvent, OutcomeEvent = outcomeEvent, ConvergedTau_1 = converged_values[[1]], ConvergedRMST_1 = converged_values[[2]],
+              ConvergedTau_5 = converged_values[[3]], ConvergedRMST_5 = converged_values[[4]],
+              ConvergedTau_10 = converged_values[[5]], ConvergedRMST_10 = converged_values[[6]])
+    
+    plot_index <- plot_index + 1
+  }
+}
+
+# Print the entire table with all rows and columns
+print(convergence_results, n = nrow(convergence_results))
+
+# Title for the table
+cat("\nSummary of RMST Convergence Points Across Index and Outcome Event Pairs\n")
+
+```
+
+
+### Sample code for applying the Friedman test to all model's accuracy results and apply the Dunn's Test for post hoc pairwise comparison. 
+```{r}
+# Sample accuracy data as a matrix: Each row is a dataset, and each column is a model
+accuracy_data <- data.frame(
+  Logistic_Regression = c(0.85, 0.78, 0.80, 0.82, 0.87),
+  AdaBoost = c(0.88, 0.81, 0.84, 0.83, 0.86),
+  SVM_Linear = c(0.86, 0.80, 0.82, 0.81, 0.85),
+  Naive_Bayes = c(0.82, 0.77, 0.78, 0.80, 0.79),
+  GBM = c(0.89, 0.83, 0.85, 0.84, 0.88)
+)
+
+# Transpose the data to ensure it has the correct structure for `friedman.test`
+# Each column will be a model, and each row will be a dataset
+friedman_result <- friedman.test(t(accuracy_data))
+print(friedman_result)
+
+# If significant, proceed with Dunn's test for pairwise comparisons
+# install.packages("FSA")
+library(FSA)
+
+# Convert the data to long format for the test
+accuracy_long <- stack(accuracy_data)
+names(accuracy_long) <- c("Accuracy", "Model")
+
+# Create a grouping factor for the datasets
+accuracy_long$Dataset <- factor(rep(1:nrow(accuracy_data), times=ncol(accuracy_data)))
+
+# Apply Dunn's test
+dunn_result <- dunnTest(Accuracy ~ Model, data = accuracy_long, method = "bonferroni")
+print(dunn_result)
+
+```
+###Sample Results Interpretation
+
+Friedman Test Results:
+
+Chi-Squared Value: 17.12 - This is the test statistic calculated by the Friedman test. It measures the overall difference in rankings of the models across datasets. A higher value suggests greater differences among the models.
+
+Degrees of Freedom (df): 4 - The degrees of freedom are calculated as k - 1, where k is the number of models. Since there are 5 models (Logistic Regression, AdaBoost, SVM, Naive Bayes, GBM), the degrees of freedom are 5 - 1 = 4.
+
+P-Value: 0.001832 - This is the probability that the observed differences could have happened by chance. Since the p-value is much less than 0.05, it indicates a statistically significant difference in performance among the models across the datasets.
+
+The Friedman test shows that there is a significant difference between the models’ performances. Which indicates that at least one model performs differently.
+
+
+Dunn's Test Results: 
+
+Comparison: This column lists all pairwise comparisons between the models (e.g., AdaBoost vs. GBM, Logistic Regression vs. SVM Linear).
+
+Z: The Z-score for each comparison, indicating the standardized difference between the models.
+
+P.unadj: The unadjusted p-value, which reflects the raw significance level without any correction for multiple comparisons.
+
+P.adj: The adjusted p-value, corrected using the Bonferroni method to control the risk of Type I errors (false positives) when performing multiple pairwise comparisons.
+
+
+GBM - Naive_Bayes: The adjusted p-value (0.022) is less than 0.05, indicating a statistically significant difference between GBM and Naive Bayes. This suggests that GBM performs significantly differently (likely better or worse) compared to Naive Bayes across the datasets.
