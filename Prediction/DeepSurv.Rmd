@@ -1,0 +1,324 @@
+---
+title: "DeepSurvForSurvival"
+output: html_document
+date: "2025-02-20"
+---
+
+```{r setup, include=FALSE}
+# Environment setup
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+local({
+  r <- getOption("repos")
+  r["CRAN"] <- "http://cran.r-project.org"
+  options(repos = r)
+})
+
+# Required packages
+required_packages <- c(
+  "tidyverse", "survival", "survminer", "ggplot2", "pec", "prodlim",
+  "survivalmodels", "reticulate", "lubridate", "caret", "knitr", "data.table", 
+  "riskRegression"
+)
+
+install_missing <- function(pkg) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+  }
+  library(pkg, character.only = TRUE)
+}
+
+sapply(required_packages, install_missing)
+```
+
+
+```{r}
+# Helper function to check and convert specified columns from factor to numeric
+convert_if_factor <- function(df, cols) {
+  for (col in cols) {
+    if (col %in% names(df)) {
+      if (is.factor(df[[col]])) {
+        message(paste("Converting column", col, "from factor to numeric."))
+        df[[col]] <- as.numeric(as.character(df[[col]]))
+      }
+    } else {
+      warning(paste("Column", col, "not found in data frame."))
+    }
+  }
+  return(df)
+}
+```
+
+
+
+```{r}
+# Sample deepSurv training pipeline
+deep_surv_pipeline <- function(
+  train_data, 
+  test_data,
+  time_col   = "timeDiff",
+  status_col = "status",
+  epochs     = 100,             # Example: increased number of epochs for training
+  num_nodes  = c(4L),           # Simulated linear experiment: 1 hidden layer with 4 nodes
+  dropout    = 0.375,           # Dropout rate from Table 3
+  activation = "selu",          # Activation: SELU as used in simulated linear experiment
+  l1_reg     = 0,
+  l2_reg     = 1.999,           # L2 regularization coefficient from Table 3
+  momentum   = 0.906,           # Momentum from Table 3
+  batch_size = 256L,
+  lr         = 2.922e-4,        # Learning rate from Table 3
+  lr_decay   = 3.579e-4,        # Learning rate decay constant from Table 3
+  optimizer  = "sgd"            # Optimizer: SGD as used in this experiment
+) {
+  if (is.null(train_data) || is.null(test_data)) {
+    stop("Error: train_data or test_data is NULL!")
+  }
+  
+  if (nrow(train_data) == 0 || nrow(test_data) == 0) {
+    stop("Error: train_data or test_data is empty!")
+  }
+
+  required_cols <- c(time_col, status_col)
+  if (!all(required_cols %in% colnames(train_data)) || !all(required_cols %in% colnames(test_data))) {
+    stop(paste("Error: Required columns", paste(required_cols, collapse = ", "), "are missing in train_data or test_data!"))
+  }
+
+  # Create the survival object for training (required by the model)
+  train_y <- Surv(
+    time = train_data[[time_col]],
+    event = train_data[[status_col]]
+  )
+  
+  formula_str <- paste0("Surv(", time_col, ", ", status_col, ") ~ .")
+  
+  model <- survivalmodels::deepsurv(
+    formula = as.formula(formula_str),
+    data = train_data,
+    num_nodes = num_nodes,
+    dropout = dropout,
+    activation = activation,
+    epochs = epochs,
+    batch_size = batch_size,
+    early_stopping = TRUE,
+    patience = 0,
+    verbose = TRUE
+    # min_delta can be set if a minimum improvement is needed
+  )
+  
+  predict_wrapper <- function(model, newdata) {
+    tryCatch({
+      predict(model, newdata = newdata, type = "risk")
+    }, error = function(e) {
+      message("Prediction error:")
+      message(e)
+      return(rep(NA, nrow(newdata)))
+    })
+  }
+  
+  risk_scores <- predict_wrapper(model, test_data)
+  
+  if (any(is.na(risk_scores))) {
+    stop("Error: Risk scores contain NA values!")
+  }
+  
+  # Filter test_data for non-missing time and status values
+  valid_rows <- !is.na(test_data[[time_col]]) & !is.na(test_data[[status_col]])
+  if (sum(valid_rows) > 0) {
+    test_data <- test_data[valid_rows, ]
+    risk_scores <- risk_scores[valid_rows]
+    
+    if (length(risk_scores) != nrow(test_data)) {
+      stop("Error: Length of risk_scores does not match number of rows in test_data!")
+    }
+    
+    # Print summaries to verify non-missing observations and events
+    message(paste("Valid test observations:", nrow(test_data)))
+    print(summary(test_data[[time_col]]))
+    print(table(test_data[[status_col]]))
+    
+    # Check that there is at least one event before computing concordance
+    if (sum(test_data[[status_col]] == 1, na.rm = TRUE) == 0) {
+      warning("No events in test_data. Concordance index cannot be computed.")
+      cindex <- NA
+    } else {
+      cindex <- survival::concordance(
+        Surv(test_data[[time_col]], test_data[[status_col]]) ~ risk_scores
+      )$concordance
+      message(paste("C-index:", cindex))
+    }
+  } else {
+    stop("Error: No valid observations in test_data for concordance calculation!")
+  }
+  
+  list(
+    model = model,
+    cindex = cindex,
+    risk_scores = risk_scores
+  )
+}
+
+```
+
+
+
+```{r}
+# Data loading function with type checking
+load_data <- function(indexEvent = "borrow", outcomeEvent = "repay") {
+  message(paste("Loading data for indexEvent:", indexEvent, "and outcomeEvent:", outcomeEvent))
+  
+  # Make the events accessible globally if needed
+  assign("indexEvent", indexEvent, envir = .GlobalEnv)
+  assign("outcomeEvent", outcomeEvent, envir = .GlobalEnv)
+  
+  # Replace with the correct paths for your environment
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R") 
+
+  n_data <- preprocess(train, test)
+  train <- as.data.frame(n_data[[1]])
+  test  <- as.data.frame(n_data[[2]])
+
+  message("Preprocessing train and test datasets...")
+
+  if (is.null(n_data) || length(n_data) < 2) {
+    stop("Error: preprocessing() returned NULL or incomplete data!")
+  }
+  
+  # List the columns you expect to be numeric; adjust as needed
+  numeric_cols <- c("timeDiff")  
+  train <- convert_if_factor(train, numeric_cols)
+  test  <- convert_if_factor(test, numeric_cols)
+  
+  list(train = train, test = test)
+}
+```
+
+
+```{r}
+# Define all indexEvent-outcomeEvent pairs of interest
+all_pairs <- list(
+  c("borrow", "repay"),
+  c("borrow", "deposit"),
+  c("borrow", "withdraw"),
+  c("borrow", "account liquidated"),
+  c("repay", "borrow"),
+  c("repay", "deposit"),
+  c("repay", "withdraw"),
+  c("repay", "account liquidated"),
+  c("deposit", "borrow"),
+  c("deposit", "repay"),
+  c("deposit", "withdraw"),
+  c("deposit", "account liquidated"),
+  c("withdraw", "borrow"),
+  c("withdraw", "repay"),
+  c("withdraw", "deposit"),
+  c("withdraw", "account liquidated")
+)
+
+results_df <- data.frame(
+  Dataset = character(),
+  CIndex  = numeric(),
+  IBS     = numeric(),
+  stringsAsFactors = FALSE
+)
+
+# Loop over each pair, load data, train DeepSurv, and capture C-index and IBS
+for (pair in all_pairs) {
+  message("\n=== Processing pair: ", pair[1], " - ", pair[2], " ===")
+  
+  # Load data for the current pair
+  datasets <- load_data(indexEvent = pair[[1]], outcomeEvent = pair[[2]])
+  
+  train <- datasets$train
+  test  <- datasets$test
+
+  # (Optional) sample smaller subsets for quick testing
+  set.seed(123)
+  mini_train <- train %>% dplyr::sample_n(min(nrow(train), 40000))
+  mini_test  <- test  %>% dplyr::sample_n(min(nrow(test), 20000))
+  
+  # Train DeepSurv with final parameters on the current pair
+  final_model <- deep_surv_pipeline(
+    train_data = mini_train,
+    test_data  = mini_test
+  )
+  
+  # Ensure the test dataset does not have missing survival times or status
+  mini_test <- na.omit(mini_test)
+  mini_train <- na.omit(mini_train)
+  
+  # Convert time to days (if needed)
+  mini_test$timeDiff <- mini_test$timeDiff / 86400  
+  mini_train$timeDiff <- mini_train$timeDiff / 86400
+  
+  # Define time points for IBS calculation
+  times <- seq(0, max(mini_test$timeDiff, na.rm = TRUE), length.out = 50)
+  
+  # Extract event status and survival times
+  status_test <- mini_test$status
+  time_test <- mini_test$timeDiff
+  
+  # Create a survival object for test data
+  Surv_test <- Surv(time_test, status_test)
+  
+  deepsurv_model <- final_model$model  # Extract the trained DeepSurv model
+  predicted_survival_probs_ds <- predict(deepsurv_model, mini_test, times = times)
+  predicted_survival_probs_ds <- as.matrix(predicted_survival_probs_ds)
+  brier_scores <- numeric(length(times))
+  
+  for (i in seq_along(times)) {
+    t <- times[i]
+    surv_prob_t <- predicted_survival_probs_ds[, i]  # Predicted survival probabilities for time t
+  
+    # Compute Brier score only if no missing values
+    if (!any(is.na(surv_prob_t))) {
+      brier_scores[i] <- sbrier(
+        obj = Surv_test,
+        pred = surv_prob_t,
+        btime = t
+      )
+    } else {
+      brier_scores[i] <- NA  # Avoid errors
+    }
+  }
+  
+  # Compute the Integrated Brier Score (IBS)
+  valid_times <- times[!is.na(brier_scores)]
+  valid_brier_scores <- brier_scores[!is.na(brier_scores)]
+  
+  dtimes <- diff(valid_times)
+  avg_brier <- (valid_brier_scores[-1] + valid_brier_scores[-length(valid_brier_scores)]) / 2
+  area_under_curve <- sum(dtimes * avg_brier)
+  
+  integrated_brier_score <- area_under_curve / (max(valid_times) - min(valid_times))
+  
+  # Append both the C-index and IBS for the current dataset pair to results_df
+  results_df <- rbind(
+    results_df,
+    data.frame(
+      Dataset = paste0(pair[1], "-", pair[2]),
+      CIndex  = max(final_model$cindex, 1 - final_model$cindex),
+      IBS     = integrated_brier_score,
+      stringsAsFactors = FALSE
+    )
+  )
+}
+
+
+# Write out the data frame to CSV
+write.csv(
+  results_df,
+  file      = "~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/Results/DeepSurv_final_results.csv",
+  row.names = FALSE
+)
+
+
+# Print the results in a neat table
+knitr::kable(
+  results_df,
+  caption = "DeepSuvrv C-Index and IBS Results for All IndexEvent-OutcomeEvent Pairs"
+)
+
+
+
+```
+

@@ -1,0 +1,235 @@
+---
+title: "Testing Survival"
+output: html_notebook
+---
+This file runs all survival prediction models and retrieve the corresponding IBS and C-index values as an example.
+
+```{r}
+library(conflicted)
+library(dplyr)
+conflict_prefer("filter", "dplyr")  # Prefer dplyr::filter over stats::filter
+```
+
+
+```{r}
+event_pairs <- list(
+  c("borrow", "account liquidated"),
+  c("borrow", "deposit"),
+  c("borrow", "repay"),
+  c("borrow", "withdraw"),
+  c("deposit", "account liquidated"),
+  c("deposit", "borrow"),
+  c("deposit", "repay"),
+  c("deposit", "withdraw"),
+  c("repay","account liquidated"),
+  c("repay", "borrow"),
+  c("repay", "deposit"),
+  c("repay", "withdraw"),
+  c("withdraw", "account liquidated"),
+  c("withdraw", "borrow"),
+  c("withdraw", "repay"),
+  c("withdraw", "deposit")
+)
+```
+
+
+
+
+
+```{r}
+# Create a data frame to store results
+results_df <- data.frame(
+  indexEvent   = character(),
+  outcomeEvent = character(),
+  CIndex       = numeric(),
+  stringsAsFactors = FALSE
+)
+```
+
+
+
+
+# XG-BOOST
+```{r}
+# Loop over each pair
+for (pair in event_pairs) {
+  # Extract indexEvent and outcomeEvent from the pair
+  indexEvent   <- pair[1]
+  outcomeEvent <- pair[2]
+  
+  #  Source needed scripts
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R")      
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/xgboost_regression.R") 
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/compute_IBS.R")        
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/concordanceIndex.R") 
+  
+  # Preprocess
+  proc_list <- preprocess(train, test, usePCA = FALSE)
+  train_processed <- as.data.frame(proc_list[[1]])
+  test_processed  <- as.data.frame(proc_list[[2]])
+  
+  # Train the XGBoost model
+  results <- xgboost_regression(train_processed, test_processed)
+  
+  # Extract the model and features
+  xgb_model     <- results$model
+  features_test <- results$features_test
+  
+  # Extract the predictions from the returned list
+  predictions <- results$predictions
+  
+  # 1. Check for NA values in test_processed
+  if (anyNA(test_processed)) {
+    cat("\n[WARNING] test_processed has NA values.\n")
+    cat("NA count by column in test_processed:\n")
+    print(colSums(is.na(test_processed)))
+  }
+
+  # 2. Check if the row count matches the length of predictions
+  if (nrow(test_processed) != length(predictions)) {
+    warning(sprintf(
+    "Row count of test_processed (%d) does NOT match the length of predictions (%d).",
+    nrow(test_processed), length(predictions)
+   ))
+  }
+
+  # 3. Check for NA in critical columns: timeDiff, status
+  if (anyNA(test_processed$timeDiff) || anyNA(test_processed$status)) {
+    cat("\n[WARNING] 'timeDiff' or 'status' columns contain NA values.\n")
+    cat("NA in timeDiff:", sum(is.na(test_processed$timeDiff)), "\n")
+    cat("NA in status:", sum(is.na(test_processed$status)), "\n")
+  }
+
+  # 4. Check for NA in predictions
+  if (anyNA(predictions)) {
+    cat("\n[WARNING] 'predictions' vector contains NA values.\n")
+  }
+
+
+
+  cindex_value <- concordanceIndex(
+    predictions = predictions,
+    test        = test_processed,
+    model_type  = "xgb" 
+  )
+  
+}
+```
+
+
+
+
+
+# Cox
+```{r}
+# Loop over each pair
+for (pair in event_pairs) {
+  # Extract indexEvent and outcomeEvent from the pair
+  indexEvent   <- pair[1]
+  outcomeEvent <- pair[2]
+  
+  #  Source needed scripts
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R")      
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/cox_regression.R") 
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/compute_IBS.R")        
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/concordanceIndex.R") 
+  
+  # Preprocess
+  proc_list <- preprocess(train, test, usePCA = TRUE)
+  train_processed <- as.data.frame(proc_list[[1]])
+  test_processed  <- as.data.frame(proc_list[[2]])
+  
+  # Train the Cox model
+  results <- cox_regression(train_processed, test_processed)
+  
+  # Extract the model and predictions
+  cox_model     <- results[[2]]
+  predictions <- results[[1]]
+
+  cindex_value <- concordanceIndex(
+    predictions = predictions,
+    test        = test_processed,
+    model_type  = "cox" 
+  )
+}
+```
+
+
+
+
+# AFT
+```{r}
+# Loop over each pair
+for (pair in event_pairs) {
+  # Extract indexEvent and outcomeEvent from the pair
+  indexEvent   <- pair[1]
+  outcomeEvent <- pair[2]
+  
+  #  Source needed scripts
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R")      
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/aft_regression.R") 
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/compute_IBS.R")        
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/concordanceIndex.R") 
+  
+  # Preprocess
+  proc_list <- preprocess(train, test, usePCA = TRUE)
+  train_processed <- as.data.frame(proc_list[[1]])
+  test_processed  <- as.data.frame(proc_list[[2]])
+  
+  # Train the AFT model
+  results <- aft_regression(train_processed, test_processed)
+  
+  # Extract the model and predictions
+  aft_model     <- results[[2]]
+  predictions <- results[[1]]
+
+  cindex_value <- concordanceIndex(
+    predictions = predictions,
+    test        = test_processed,
+    model_type  = "aft" 
+  )
+}
+```
+
+
+
+
+# GBM
+```{r}
+# Loop over each pair
+for (pair in event_pairs) {
+  # Extract indexEvent and outcomeEvent from the pair
+  indexEvent   <- pair[1]
+  outcomeEvent <- pair[2]
+  
+  #  Source needed scripts
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R")      
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/gbm_regression.R") 
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/compute_IBS.R")        
+  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/concordanceIndex.R") 
+  
+  # Preprocess
+  proc_list <- preprocess(train, test, useScaling = FALSE, useOneHotEncoding = FALSE, usePCA = FALSE)
+  train_processed <- as.data.frame(proc_list[[1]])
+  test_processed  <- as.data.frame(proc_list[[2]])
+  
+  # Train the GBM model
+  results <- gbm_regression(train_processed, test_processed)
+  
+  # Extract the model and predictions
+  gbm_model     <- results[[2]]
+  predictions <- results[[1]]
+
+  cindex_value <- concordanceIndex(
+    predictions = predictions,
+    test        = test_processed,
+    model_type  = "gbm" 
+  )
+}
+
+```
+
