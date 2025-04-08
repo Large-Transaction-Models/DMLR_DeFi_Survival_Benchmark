@@ -1,0 +1,17 @@
+auc_score,Logistic.Regression,Decision.Tree,XGBoost,Elastic.Net,DeepHit,DeepLearningClassifier
+borrow + account liquidated,0.723,0.681,0.732,0.723,0.75,0.748
+borrow + deposit,0.774,0.737,0.549,0.775,0.775,0.758
+borrow + repay,0.809,0.757,0.789,0.809,0.799,0.801
+borrow + withdraw,0.825,0.769,0.697,0.826,0.817,0.793
+deposit + account liquidated,0.725,0.661,0.823,0.723,0.815,0.774
+deposit + borrow,0.827,0.61,0.561,0.81,0.793,0.747
+deposit + repay,0.816,0.749,0.564,0.806,0.813,0.761
+deposit + withdraw,0.816,0.821,0.731,0.815,0.785,0.82
+repay + account liquidated,0.659,0.552,0.708,0.652,0.697,0.72
+repay + borrow,0.827,0.762,0.792,0.827,0.826,0.815
+repay + deposit,0.794,0.764,0.488,0.794,0.759,0.723
+repay + withdraw,0.818,0.715,0.618,0.819,0.8,0.721
+withdraw + account liquidated,0.687,0.756,0.88,0.687,0.89,0.841
+withdraw + borrow,0.907,0.892,0.749,0.907,0.594,0.847
+withdraw + repay,0.886,0.829,0.731,0.886,0.752,0.863
+withdraw + deposit,0.837,0.811,0.834,0.84,0.852,0.862
