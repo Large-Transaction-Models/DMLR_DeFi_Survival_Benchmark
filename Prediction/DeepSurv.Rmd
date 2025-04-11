@@ -170,8 +170,8 @@ load_data <- function(indexEvent = "borrow", outcomeEvent = "repay") {
   assign("outcomeEvent", outcomeEvent, envir = .GlobalEnv)
   
   # Replace with the correct paths for your environment
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/dataLoader.R")
+  source("~/DMLR_DeFi_Survival_Benchmark/dataPreprocessing.R") 
 
   n_data <- preprocess(train, test)
   train <- as.data.frame(n_data[[1]])
@@ -221,7 +221,7 @@ results_df <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# Loop over each pair, load data, train DeepSurv, and capture C-index and IBS
+# Loop over each pair, load data, train DeepSurv, and capture C-index 
 for (pair in all_pairs) {
   message("\n=== Processing pair: ", pair[1], " - ", pair[2], " ===")
   
@@ -231,7 +231,7 @@ for (pair in all_pairs) {
   train <- datasets$train
   test  <- datasets$test
 
-  # (Optional) sample smaller subsets for quick testing
+  # (Sample) sample smaller subsets for quick testing
   set.seed(123)
   mini_train <- train %>% dplyr::sample_n(min(nrow(train), 40000))
   mini_test  <- test  %>% dplyr::sample_n(min(nrow(test), 20000))
@@ -242,62 +242,13 @@ for (pair in all_pairs) {
     test_data  = mini_test
   )
   
-  # Ensure the test dataset does not have missing survival times or status
-  mini_test <- na.omit(mini_test)
-  mini_train <- na.omit(mini_train)
   
-  # Convert time to days (if needed)
-  mini_test$timeDiff <- mini_test$timeDiff / 86400  
-  mini_train$timeDiff <- mini_train$timeDiff / 86400
-  
-  # Define time points for IBS calculation
-  times <- seq(0, max(mini_test$timeDiff, na.rm = TRUE), length.out = 50)
-  
-  # Extract event status and survival times
-  status_test <- mini_test$status
-  time_test <- mini_test$timeDiff
-  
-  # Create a survival object for test data
-  Surv_test <- Surv(time_test, status_test)
-  
-  deepsurv_model <- final_model$model  # Extract the trained DeepSurv model
-  predicted_survival_probs_ds <- predict(deepsurv_model, mini_test, times = times)
-  predicted_survival_probs_ds <- as.matrix(predicted_survival_probs_ds)
-  brier_scores <- numeric(length(times))
-  
-  for (i in seq_along(times)) {
-    t <- times[i]
-    surv_prob_t <- predicted_survival_probs_ds[, i]  # Predicted survival probabilities for time t
-  
-    # Compute Brier score only if no missing values
-    if (!any(is.na(surv_prob_t))) {
-      brier_scores[i] <- sbrier(
-        obj = Surv_test,
-        pred = surv_prob_t,
-        btime = t
-      )
-    } else {
-      brier_scores[i] <- NA  # Avoid errors
-    }
-  }
-  
-  # Compute the Integrated Brier Score (IBS)
-  valid_times <- times[!is.na(brier_scores)]
-  valid_brier_scores <- brier_scores[!is.na(brier_scores)]
-  
-  dtimes <- diff(valid_times)
-  avg_brier <- (valid_brier_scores[-1] + valid_brier_scores[-length(valid_brier_scores)]) / 2
-  area_under_curve <- sum(dtimes * avg_brier)
-  
-  integrated_brier_score <- area_under_curve / (max(valid_times) - min(valid_times))
-  
-  # Append both the C-index and IBS for the current dataset pair to results_df
+  # Append the C-index for the current dataset pair to results_df
   results_df <- rbind(
     results_df,
     data.frame(
       Dataset = paste0(pair[1], "-", pair[2]),
-      CIndex  = max(final_model$cindex, 1 - final_model$cindex),
-      IBS     = integrated_brier_score,
+      CIndex  = final_model$cindex,
       stringsAsFactors = FALSE
     )
   )
@@ -307,7 +258,7 @@ for (pair in all_pairs) {
 # Write out the data frame to CSV
 write.csv(
   results_df,
-  file      = "~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/Results/DeepSurv_final_results.csv",
+  file      = "~/DMLR_DeFi_Survival_Benchmark/Prediction/DeepSurv_final_results.csv",
   row.names = FALSE
 )
 
@@ -315,7 +266,7 @@ write.csv(
 # Print the results in a neat table
 knitr::kable(
   results_df,
-  caption = "DeepSuvrv C-Index and IBS Results for All IndexEvent-OutcomeEvent Pairs"
+  caption = "DeepSuvrv C-Index Results for All IndexEvent-OutcomeEvent Pairs"
 )
 
 

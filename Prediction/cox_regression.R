@@ -12,7 +12,7 @@ cox_regression <- function(train, test, features = NULL){
   
   # Confirm both train and test do not have rows with timeDiff = 0
   train <- train[train$timeDiff > 0,]
-  #test <- test[test$timeDiff > 0,]
+  test <- test[test$timeDiff > 0,]
   
   
   if (!is.null(features)) {
@@ -22,6 +22,7 @@ cox_regression <- function(train, test, features = NULL){
   } else {
     cat("No feature selection applied. Using all features.\n")
   }
+  
   
   # Create data frame without "status" and "timeDiff" features, for prediction
   test <- as.data.frame(test)
@@ -33,8 +34,9 @@ cox_regression <- function(train, test, features = NULL){
   coxModel = coxph(Surv(timeDiff/86400, status)~ ., 
                    data = train, x = TRUE)
   
+  
   # Predict using the trained Cox model and the data found in test.X
-  cox_predictions = predict(coxModel, newdata = test.X, type="lp")
+  cox_predictions = predict(coxModel, newdata = test, type="survival")
   
   l <- list(cox_predictions, coxModel)
   

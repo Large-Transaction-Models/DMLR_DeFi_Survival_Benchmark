@@ -11,37 +11,37 @@ conflict_prefer("filter", "dplyr")  # Prefer dplyr::filter over stats::filter
 ```
 
 
+
+
 ```{r}
 event_pairs <- list(
-  c("borrow", "account liquidated"),
-  c("borrow", "deposit"),
   c("borrow", "repay"),
+  c("borrow", "deposit"),
   c("borrow", "withdraw"),
-  c("deposit", "account liquidated"),
-  c("deposit", "borrow"),
-  c("deposit", "repay"),
-  c("deposit", "withdraw"),
-  c("repay","account liquidated"),
+  c("borrow", "account liquidated"),
   c("repay", "borrow"),
   c("repay", "deposit"),
   c("repay", "withdraw"),
-  c("withdraw", "account liquidated"),
+  c("repay", "account liquidated"),
+  c("deposit", "borrow"),
+  c("deposit", "repay"),
+  c("deposit", "withdraw"),
+  c("deposit", "account liquidated"),
   c("withdraw", "borrow"),
   c("withdraw", "repay"),
-  c("withdraw", "deposit")
+  c("withdraw", "deposit"),
+  c("withdraw", "account liquidated")
 )
 ```
 
 
-
-
-
 ```{r}
-# Create a data frame to store results
+# Create a data frame to store all results (for all models)
 results_df <- data.frame(
   indexEvent   = character(),
   outcomeEvent = character(),
   CIndex       = numeric(),
+  Model        = character(),   
   stringsAsFactors = FALSE
 )
 ```
@@ -58,11 +58,10 @@ for (pair in event_pairs) {
   outcomeEvent <- pair[2]
   
   #  Source needed scripts
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R")      
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/xgboost_regression.R") 
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/compute_IBS.R")        
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/concordanceIndex.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/dataLoader.R")
+  source("~/DMLR_DeFi_Survival_Benchmark/dataPreprocessing.R")      
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/xgboost_regression.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/concordanceIndex.R") 
   
   # Preprocess
   proc_list <- preprocess(train, test, usePCA = FALSE)
@@ -113,8 +112,20 @@ for (pair in event_pairs) {
     test        = test_processed,
     model_type  = "xgb" 
   )
+   
   
+  results_df <- rbind(
+  results_df,
+  data.frame(
+    indexEvent   = indexEvent,
+    outcomeEvent = outcomeEvent,
+    CIndex       = cindex_value,
+    Model        = "XGBoost", 
+    stringsAsFactors = FALSE
+  )
+)
 }
+print(results_df)
 ```
 
 
@@ -130,11 +141,10 @@ for (pair in event_pairs) {
   outcomeEvent <- pair[2]
   
   #  Source needed scripts
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R")      
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/cox_regression.R") 
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/compute_IBS.R")        
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/concordanceIndex.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/dataLoader.R")
+  source("~/DMLR_DeFi_Survival_Benchmark/dataPreprocessing.R")      
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/cox_regression.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/concordanceIndex.R") 
   
   # Preprocess
   proc_list <- preprocess(train, test, usePCA = TRUE)
@@ -153,7 +163,19 @@ for (pair in event_pairs) {
     test        = test_processed,
     model_type  = "cox" 
   )
+    
+  results_df <- rbind(
+    results_df,
+    data.frame(
+      indexEvent   = indexEvent,
+      outcomeEvent = outcomeEvent,
+      CIndex       = cindex_value,
+      Model        = "Cox", 
+      stringsAsFactors = FALSE
+    )
+  )
 }
+print(results_df)
 ```
 
 
@@ -168,11 +190,10 @@ for (pair in event_pairs) {
   outcomeEvent <- pair[2]
   
   #  Source needed scripts
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R")      
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/aft_regression.R") 
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/compute_IBS.R")        
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/concordanceIndex.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/dataLoader.R")
+  source("~/DMLR_DeFi_Survival_Benchmark/dataPreprocessing.R")      
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/aft_regression.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/concordanceIndex.R") 
   
   # Preprocess
   proc_list <- preprocess(train, test, usePCA = TRUE)
@@ -191,7 +212,19 @@ for (pair in event_pairs) {
     test        = test_processed,
     model_type  = "aft" 
   )
+  
+  results_df <- rbind(
+    results_df,
+    data.frame(
+      indexEvent   = indexEvent,
+      outcomeEvent = outcomeEvent,
+      CIndex       = cindex_value,
+      Model        = "AFT", 
+      stringsAsFactors = FALSE
+    )
+  )
 }
+print(results_df)
 ```
 
 
@@ -206,11 +239,10 @@ for (pair in event_pairs) {
   outcomeEvent <- pair[2]
   
   #  Source needed scripts
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataLoader.R")
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/dataPreprocessing.R")      
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/gbm_regression.R") 
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/compute_IBS.R")        
-  source("~/KDD_DeFi_Survival_Dataset_And_Benchmark/Survival_Prediction/concordanceIndex.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/dataLoader.R")
+  source("~/DMLR_DeFi_Survival_Benchmark/dataPreprocessing.R")      
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/gbm_regression.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/concordanceIndex.R") 
   
   # Preprocess
   proc_list <- preprocess(train, test, useScaling = FALSE, useOneHotEncoding = FALSE, usePCA = FALSE)
@@ -229,7 +261,75 @@ for (pair in event_pairs) {
     test        = test_processed,
     model_type  = "gbm" 
   )
+ 
+  results_df <- rbind(
+    results_df,
+    data.frame(
+      indexEvent   = indexEvent,
+      outcomeEvent = outcomeEvent,
+      CIndex       = cindex_value,
+      Model        = "GBM", 
+      stringsAsFactors = FALSE
+    )
+  )
 }
+print(results_df)
 
 ```
+
+
+```{r}
+combined_results_df <- results_df %>%
+  pivot_wider(
+    names_from  = Model,
+    values_from = CIndex
+  )
+
+# Write to CSV (wide format)
+write.csv(
+  combined_results_df,
+  file      = "combined_results_by_model.csv",
+  row.names = FALSE
+)
+cat("Combined results pivoted by model saved to combined_results_by_model.csv\n")
+
+# save as RDS
+saveRDS(
+  combined_results_df,
+  file = "combined_results_by_model.rds"
+)
+cat("Combined results pivoted by model saved as combined_results_by_model.rds\n")
+
+# View the wide results in the console
+print(combined_results_df)
+```
+```{r}
+combined_results_df <- read.csv("combined_results_by_model.csv")
+
+deephit_df <- read.csv("~/DMLR_DeFi_Survival_Benchmark/Prediction/DeepHit_final_results.csv")
+deepsurv_df <- read.csv("~/DMLR_DeFi_Survival_Benchmark/Prediction/DeepSurv_final_results.csv")
+
+# Split "Dataset" -> ("indexEvent", "outcomeEvent") and rename "CIndex" -> "DeepHit"
+deephit_df <- deephit_df %>%
+  separate(Dataset, into = c("indexEvent", "outcomeEvent"), sep = "-") %>%
+  rename(DeepHit = CIndex)
+
+deepsurv_df <- deepsurv_df %>%
+  separate(Dataset, into = c("indexEvent", "outcomeEvent"), sep = "-") %>%
+  rename(DeepSurv = CIndex)
+
+final_df <- combined_results_df %>%
+  left_join(deephit_df, by = c("indexEvent", "outcomeEvent"))%>%
+  left_join(deepsurv_df, by = c("indexEvent", "outcomeEvent"))
+
+
+write.csv(final_df, "final_results.csv", row.names = FALSE)
+cat("Wrote combined results to combined_results_with_deephit.csv\n")
+
+# View in console
+print(final_df)
+```
+
+
+
 
