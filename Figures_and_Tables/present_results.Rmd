@@ -1,0 +1,252 @@
+
+```{r}
+save_pheatmap_png <- function(x, filename, width=1200, height=1000, res = 150) {
+  png(filename, width = width, height = height, res = res)
+  grid::grid.newpage()
+  grid::grid.draw(x$gtable)
+  dev.off()
+}
+```
+Load necessary libraries:
+```{r}
+library(pheatmap)
+library(dplyr)
+library(xtable)
+library(readr)
+library(ggpubr)
+```
+
+```{r}
+pubFontSize = 18
+pValSize = 8
+pubWidth = 8
+pubHeight = 6
+pubColorScheme = "Set1"
+```
+
+
+# Read in the prediction results and rename columns to just be model names:
+```{r}
+prediction_results <- read_csv("../Prediction/final_results_combined.csv")
+
+prediction_results <- prediction_results %>%
+  rename(DeepHit = DeepHit_cIndex,
+         DeepSurv = DeepSurv_cIndex)
+```
+For readability down the line, combine the index and outcome events into one column called "Dataset" and short "account liquidated" to just "liquidated":
+```{r}
+prediction_results <- prediction_results %>%
+  mutate(outcomeEvent = case_when(outcomeEvent == "account liquidated" ~ "liquidated",
+                                  TRUE ~ outcomeEvent)) %>%
+  mutate(Dataset = paste0(indexEvent, "-", outcomeEvent)) %>%
+  select(-indexEvent, -outcomeEvent)
+```
+
+Rearrange the rows and columns each according to their mean Borda rank:
+```{r}
+# Use the Dataset column as rownames:
+prediction_results <- prediction_results %>%
+  column_to_rownames(var = "Dataset")
+
+# Calculate the means of the columns (mean concordance index for each model):
+col_means <- colMeans(prediction_results)
+prediction_results <- bind_rows(prediction_results, col_means) 
+rownames(prediction_results)[rownames(prediction_results) == "...17"] <- "Mean C-Index"
+
+# Calculate the Borda ranks for the columns:
+col_ranks <- data.frame(prediction_results) %>%
+         rowwise() %>% 
+         do(data.frame(t(rank(-unlist(.)))))
+# This is a bit janky, but I know there are only 16 datasets, 
+# so just keep the top 16 rows after the col_ranks have been computed:
+col_ranks <- col_ranks %>%
+  head(16)
+
+mean_col_ranks <- colMeans(col_ranks)
+prediction_results<- bind_rows(prediction_results, mean_col_ranks)
+rownames(prediction_results)[rownames(prediction_results) == "...18"] <- "Mean Borda Rank"
+
+# Order column names based on their means (ascending)
+ordered_cols <- prediction_results[, order(as.numeric(prediction_results["Mean Borda Rank", ]))]
+
+# Set up the dataframe for annotating heatmap columns based on Borda Rank
+annot_cols <- as.numeric(ordered_cols["Mean Borda Rank", ])
+names(annot_cols) <- colnames(ordered_cols)
+annot_cols <- data.frame(`Mean Borda Rank` = annot_cols)
+
+prediction_results_for_heatmap <- ordered_cols[1:16, ]
+
+# Next, let's order the columns by Borda rank by transposing the matrix and doing the same thing as above:
+prediction_results_transposed <- data.frame(t(prediction_results_for_heatmap)) 
+row_means <- colMeans(prediction_results_transposed)
+prediction_results_transposed <- bind_rows(prediction_results_transposed, row_means)
+rownames(prediction_results_transposed)[rownames(prediction_results_transposed) == "...7"] <- "Mean C-Index"
+
+row_ranks <- data.frame(prediction_results_transposed) %>%
+  rowwise() %>%
+  do(data.frame(t(rank(-unlist(.)))))
+
+row_ranks <- row_ranks %>%
+  head(6)
+
+mean_row_ranks <- colMeans(row_ranks)
+prediction_results_transposed <- bind_rows(prediction_results_transposed, mean_row_ranks)
+rownames(prediction_results_transposed)[rownames(prediction_results_transposed) == "...8"] <- "Mean Borda Rank"
+
+annot_rows <- as.numeric(prediction_results_transposed["Mean Borda Rank", ])
+names(annot_rows) <- colnames(prediction_results_transposed)
+annot_rows <- data.frame(`Mean Borda Rank` = annot_rows)
+
+rownames(annot_rows) <- rownames(prediction_results_for_heatmap)
+
+final_row_order <- annot_rows %>%
+  arrange(Mean.Borda.Rank) %>%
+  rownames()
+
+prediction_results_for_heatmap <- prediction_results_for_heatmap[final_row_order,]
+
+
+prediction_results_heatmap <- pheatmap(as.matrix(prediction_results_for_heatmap), scale='none',
+         angle_col = 45,
+         main = "Survival Prediction Concordance Index Values", 
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         display_numbers = TRUE,
+         annotation_col = annot_cols,
+         annotation_row = annot_rows,
+         annotation_names_row = FALSE,
+         annotation_names_col = FALSE,
+         width = 1280,
+         height = 720
+         )
+```
+With the heatmap created and looking good, let's save it to a PDF for publication-readiness:
+```{r}
+image=ggpubr::ggpar(prediction_results_heatmap,
+              font.legend = list(size = pubFontSize),
+              font.xtickslab = list(size = pubFontSize),
+              font.ytickslab = list(size = pubFontSize),
+              font.x = list(size = pubFontSize),
+              font.y = list(size = pubFontSize),
+              font.subtitle = list(size = pubFontSize),
+              palette = pubColorScheme)
+ggsave(file="predictionResults.pdf", plot=image, width=pubWidth, height=pubHeight)
+```
+Output the table for LaTeX in the Appendix:
+```{r}
+xtable(prediction_results, digits=c(0, 3, 3, 3, 3, 3, 3))
+```
+Now do all the same things for the classification results:
+```{r}
+classification_results <- read_csv("../Classification/Results/auc_score.csv")
+```
+Rename the auc_score column as Dataset, convert the '+' to '-', and shorten "account liquidated" to "liquidated"
+```{r}
+classification_results <- classification_results %>%
+  rename(Dataset = auc_score) 
+
+# Step 1: Replace " + " with "-"
+classification_results$Dataset <- gsub(" \\+ ", "-", classification_results$Dataset)
+
+
+# Step 2: Replace "account liquidated" with "liquidated"
+classification_results$Dataset <- gsub("account liquidated", "liquidated", classification_results$Dataset, fixed = TRUE)
+```
+
+Rearrange the rows and columns according to their Mean Borda Rank:
+```{r}
+# Use the Dataset column as rownames:
+classification_results <- classification_results %>%
+  column_to_rownames(var = "Dataset")
+
+# Also, rename "DeepLearningClassifier" as Neural Net:
+classification_results <- classification_results %>%
+  rename(NeuralNet = DeepLearningClassifier)
+
+# Calculate the means of the columns (mean concordance index for each model):
+col_means <- colMeans(classification_results)
+classification_results <- bind_rows(classification_results, col_means) 
+rownames(classification_results)[rownames(classification_results) == "...17"] <- "Mean AUC"
+
+# Calculate the Borda ranks for the columns:
+col_ranks <- data.frame(classification_results) %>%
+         rowwise() %>% 
+         do(data.frame(t(rank(-unlist(.)))))
+# This is a bit janky, but I know there are only 16 datasets, 
+# so just keep the top 16 rows after the col_ranks have been computed:
+col_ranks <- col_ranks %>%
+  head(16)
+
+mean_col_ranks <- colMeans(col_ranks)
+classification_results<- bind_rows(classification_results, mean_col_ranks)
+rownames(classification_results)[rownames(classification_results) == "...18"] <- "Mean Borda Rank"
+
+# Order column names based on their means (ascending)
+ordered_cols <- classification_results[, order(as.numeric(classification_results["Mean Borda Rank", ]))]
+
+# Set up the dataframe for annotating heatmap columns based on Borda Rank
+annot_cols <- as.numeric(ordered_cols["Mean Borda Rank", ])
+names(annot_cols) <- colnames(ordered_cols)
+annot_cols <- data.frame(`Mean Borda Rank` = annot_cols)
+
+classification_results_for_heatmap <- ordered_cols[1:16, ]
+
+# Next, let's order the columns by Borda rank by transposing the matrix and doing the same thing as above:
+classification_results_transposed <- data.frame(t(classification_results_for_heatmap)) 
+row_means <- colMeans(classification_results_transposed)
+classification_results_transposed <- bind_rows(classification_results_transposed, row_means)
+rownames(classification_results_transposed)[rownames(classification_results_transposed) == "...7"] <- "Mean AUC"
+
+row_ranks <- data.frame(classification_results_transposed) %>%
+  rowwise() %>%
+  do(data.frame(t(rank(-unlist(.)))))
+
+row_ranks <- row_ranks %>%
+  head(6)
+
+mean_row_ranks <- colMeans(row_ranks)
+classification_results_transposed <- bind_rows(classification_results_transposed, mean_row_ranks)
+rownames(classification_results_transposed)[rownames(classification_results_transposed) == "...8"] <- "Mean Borda Rank"
+
+annot_rows <- as.numeric(classification_results_transposed["Mean Borda Rank", ])
+names(annot_rows) <- colnames(classification_results_transposed)
+annot_rows <- data.frame(`Mean Borda Rank` = annot_rows)
+
+rownames(annot_rows) <- rownames(classification_results_for_heatmap)
+
+final_row_order <- annot_rows %>%
+  arrange(Mean.Borda.Rank) %>%
+  rownames()
+
+classification_results_for_heatmap <- classification_results_for_heatmap[final_row_order,]
+
+
+classification_results_heatmap <- pheatmap(as.matrix(classification_results_for_heatmap), scale='none',
+         angle_col = 45,
+         main = "Classification AUC Values", 
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         display_numbers = TRUE,
+         annotation_col = annot_cols,
+         annotation_row = annot_rows,
+         annotation_names_row = FALSE,
+         annotation_names_col = FALSE,
+         width = 1280,
+         height = 720
+         )
+
+```
+With the heatmap created and looking good, let's save it to a PDF for publication-readiness:
+```{r}
+image=ggpubr::ggpar(classification_results_heatmap,
+              font.legend = list(size = pubFontSize),
+              font.xtickslab = list(size = pubFontSize),
+              font.ytickslab = list(size = pubFontSize),
+              font.x = list(size = pubFontSize),
+              font.y = list(size = pubFontSize),
+              font.subtitle = list(size = pubFontSize),
+              palette = pubColorScheme)
+ggsave(file="classificationResults.pdf", plot=image, width=pubWidth, height=pubHeight)
+```
+```{r}
+xtable(classification_results, digits=c(0, 3, 3, 3, 3, 3, 3))
+```
+
