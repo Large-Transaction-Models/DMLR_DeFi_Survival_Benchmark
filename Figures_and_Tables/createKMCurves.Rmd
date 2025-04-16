@@ -1,0 +1,153 @@
+```{r}
+library(survival)
+library(survminer)
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+library(patchwork)
+library(ggpubr)
+
+select <- dplyr::select
+rename <- dplyr::rename
+
+```
+
+```{r}
+allSurvivalData <- data.frame()
+event_pairs <- list(
+  c("borrow", "repay"),
+  c("borrow", "deposit"),
+  c("borrow", "withdraw"),
+  c("borrow", "account liquidated"),
+  c("repay", "borrow"),
+  c("repay", "deposit"),
+  c("repay", "withdraw"),
+  c("repay", "account liquidated"),
+  c("deposit", "borrow"),
+  c("deposit", "repay"),
+  c("deposit", "withdraw"),
+  c("deposit", "account liquidated"),
+  c("withdraw", "borrow"),
+  c("withdraw", "repay"),
+  c("withdraw", "deposit"),
+  c("withdraw", "account liquidated")
+)
+
+# Loop over each pair
+for (pair in event_pairs) {
+  # Extract indexEvent and outcomeEvent from the pair
+  indexEvent   <- pair[1]
+  outcomeEvent <- pair[2]
+  
+  #  Source needed scripts
+  source("~/DMLR_DeFi_Survival_Benchmark/dataLoader.R")
+  
+  allSurvivalData <- bind_rows(allSurvivalData, train, test)
+   
+}
+
+allSurvivalData <- allSurvivalData %>%
+  rename(outcome_event = `Outcome Event`) %>%
+  rename(index_event = `Index Event`) %>%
+  mutate(outcome_event = case_when(outcome_event == "account liquidated" ~ "liquidated",
+                                   TRUE ~ outcome_event)) %>%
+  mutate(outcome_event = as.factor(outcome_event))
+```
+
+```{r}
+slice <- allSurvivalData %>%
+  slice_sample(prop = 0.05)
+# Unique index events
+index_events <- unique(slice$index_event)
+
+# Define the outcome event set and assign colors
+outcomes <- c("deposit", "borrow", "repay", "withdraw", "liquidated")
+color_map <- c(
+  "deposit" = "#1f77b4",
+  "borrow" = "#ff7f0e",
+  "repay" = "#2ca02c",
+  "withdraw" = "#d62728",
+  "liquidated" = "#9467bd"
+)
+
+```
+
+```{r}
+# Dummy plot to extract the full legend
+legend_fit <- survfit(Surv(timeDiff/86400, status) ~ outcome_event, data = slice)
+legend_plot <- ggsurvplot(
+  legend_fit,
+  data = slice,
+  palette = color_map,
+  color = "outcome_event",
+  ggtheme = theme_minimal()
+)
+
+# Combine using ggpubr
+library(gridExtra)
+combined <- ggarrange(
+  plotlist = km_plots,
+  ncol = 2, nrow = 2,
+  common.legend = TRUE,
+  legend = "bottom"
+)
+
+# Add legend at bottom (you may need to use grid.arrange for full control)
+grid.arrange(combined, legend_plot$legend, ncol = 1, heights = c(4, 0.5))
+```
+
+
+```{r}
+plots = NULL
+# Create list of plots
+for(index_event in index_events){
+  # Filter data for the specific index event
+  subset <- slice %>% filter(index_event == !!index_event)
+  
+  # Fit Kaplan-Meier curves
+  survObject <- Surv(time = subset$timeDiff/86400, event = as.numeric(subset$status))
+  fit <- survfit(survObject ~ outcome_event, data = subset)
+  
+  plots[[index_event]] <- ggsurvplot(
+    fit, 
+    data = subset, 
+    conf.int = TRUE,
+    pval = TRUE,
+    censor = FALSE,
+    color = "outcome_event",
+    palette = color_map,
+    legend = "none",
+    legend.title = "Outcome Event",
+    title = paste("Index Event: ", index_event),
+    xlab = "Time",
+    ylab = "Survival Probability")$plot
+}
+
+
+# Combine using ggpubr
+combined <- ggarrange(
+  plotlist = plots,
+  ncol = 2, nrow = 2,
+  common.legend = TRUE,
+  legend = "right"
+)
+
+# Add legend at bottom (you may need to use grid.arrange for full control)
+grid.arrange(combined, legend_plot$legend, ncol = 1, heights = c(4, 0.5))
+
+```
+
+```{r}
+library(patchwork)
+(plots[[1]] + plots[[2]] + plots[[3]] + plots[[4]] + legend_plot$plot) + guide_area() + plot_layout(guides = "collect")
+```
+
+```{r}
+toSave <- ggarrange(plotlist = plots,
+          nrow = 2,
+          ncol = 2,
+          legend = "right",
+          common.legend = TRUE)
+
+ggsave("./figures/kmCurves.pdf", plot = toSave, height = 5, width = 8)
+```

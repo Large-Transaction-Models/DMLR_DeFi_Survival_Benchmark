@@ -13,6 +13,8 @@ library(pheatmap)
 library(dplyr)
 library(xtable)
 library(readr)
+library(tidyr)
+library(tibble)
 library(ggpubr)
 ```
 
@@ -27,11 +29,7 @@ pubColorScheme = "Set1"
 
 # Read in the prediction results and rename columns to just be model names:
 ```{r}
-prediction_results <- read_csv("../Prediction/final_results_combined.csv")
-
-prediction_results <- prediction_results %>%
-  rename(DeepHit = DeepHit_cIndex,
-         DeepSurv = DeepSurv_cIndex)
+prediction_results <- read_csv("../Prediction/final_results.csv")
 ```
 For readability down the line, combine the index and outcome events into one column called "Dataset" and short "account liquidated" to just "liquidated":
 ```{r}
@@ -47,6 +45,10 @@ Rearrange the rows and columns each according to their mean Borda rank:
 # Use the Dataset column as rownames:
 prediction_results <- prediction_results %>%
   column_to_rownames(var = "Dataset")
+
+# Because the GBM results are so bad, we are just going to drop it:
+prediction_results <- prediction_results %>%
+  select(-GBM)
 
 # Calculate the means of the columns (mean concordance index for each model):
 col_means <- colMeans(prediction_results)
@@ -80,7 +82,7 @@ prediction_results_for_heatmap <- ordered_cols[1:16, ]
 prediction_results_transposed <- data.frame(t(prediction_results_for_heatmap)) 
 row_means <- colMeans(prediction_results_transposed)
 prediction_results_transposed <- bind_rows(prediction_results_transposed, row_means)
-rownames(prediction_results_transposed)[rownames(prediction_results_transposed) == "...7"] <- "Mean C-Index"
+rownames(prediction_results_transposed)[rownames(prediction_results_transposed) == "...6"] <- "Mean C-Index"
 
 row_ranks <- data.frame(prediction_results_transposed) %>%
   rowwise() %>%
@@ -91,7 +93,7 @@ row_ranks <- row_ranks %>%
 
 mean_row_ranks <- colMeans(row_ranks)
 prediction_results_transposed <- bind_rows(prediction_results_transposed, mean_row_ranks)
-rownames(prediction_results_transposed)[rownames(prediction_results_transposed) == "...8"] <- "Mean Borda Rank"
+rownames(prediction_results_transposed)[rownames(prediction_results_transposed) == "...7"] <- "Mean Borda Rank"
 
 annot_rows <- as.numeric(prediction_results_transposed["Mean Borda Rank", ])
 names(annot_rows) <- colnames(prediction_results_transposed)
@@ -133,7 +135,7 @@ ggsave(file="predictionResults.pdf", plot=image, width=pubWidth, height=pubHeigh
 ```
 Output the table for LaTeX in the Appendix:
 ```{r}
-xtable(prediction_results, digits=c(0, 3, 3, 3, 3, 3, 3))
+xtable(prediction_results, digits=c(0, 3, 3, 3, 3, 3))
 ```
 Now do all the same things for the classification results:
 ```{r}
