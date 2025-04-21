@@ -16,7 +16,8 @@ The dataPreprocessing script is used to preprocess train and test sets with vari
 ## Data/ directory:
 In the "Data/" directory you can find the datasets being published for this work. Most importantly, in the "Data/Survival_Data/" there are three subdirectories. 
 * Survival_Data: this is the subdirectory that houses the published survival datasets. They are organized by index and outcome events, and they can be converted to the classification task using the dataPreprocessing function.
-* Raw_Transaction_Data_Sample: 
+* Raw_Transaction_Data_Sample: this directory contains a small sample of the raw transaction data we used to create the survival data.
+* Other_Data: this directory was built to contain any other data that might be used to augment the data. It just contains one file which indicates whether each coin type in the data is a stable coin.
 
 ## Prediction/ directory:
 The "Prediction/" directory contains all the code to recreate the results from the paper's first task, FinSurvival.
@@ -25,4 +26,4 @@ The "Prediction/" directory contains all the code to recreate the results from t
 The "Classification/" directory contains all the code to recreate the results from the paper's second task, FinSurvival-Classification. 
 
 ## Figures_and_Tables/:
-The "Figures_and_Tables/" directory contains the code necessary to recreate the tables of results in the paper, along with the heatmaps. It also contains the file assets for the heatmaps.
+The "Figures_and_Tables/" directory contains the code necessary to recreate the tables of results in the paper, along with the heatmaps. It also contains the file assets for the heatmaps and the Kaplan--Meier survival curves.
