@@ -13,12 +13,6 @@ aft_regression <- function(train, test, features = NULL){
     library(purrr)
   }
   
-  # Confirm both train and test do not have rows with timeDiff = 0
-  train <- train[train$timeDiff > 0,]
-  test <- test[test$timeDiff > 0,]
-  
-  
-  
   # Match levels in factor columns from testing to those from the training set.
   excluded_columns <- c("status")
   
@@ -46,7 +40,7 @@ aft_regression <- function(train, test, features = NULL){
                        data = train, dist = "weibull")
   
   # Predict aft on test data
-  aft_prediction <- predict(aft_model,newdata = test.X)/86400
+  aft_prediction <- predict(aft_model,newdata = test.X)
   
   l <- list(aft_prediction, aft_model)
   

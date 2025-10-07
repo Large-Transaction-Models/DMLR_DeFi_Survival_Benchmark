@@ -109,8 +109,7 @@ for (pair in event_pairs) {
 
   cindex_value <- concordanceIndex(
     predictions = predictions,
-    test        = test_processed,
-    model_type  = "xgb" 
+    test        = test_processed
   )
    
   
@@ -158,10 +157,12 @@ for (pair in event_pairs) {
   cox_model     <- results[[2]]
   predictions <- results[[1]]
 
+  # Note that we've configured our Cox model to predict survival times rather than hazards rates
+  
   cindex_value <- concordanceIndex(
     predictions = predictions,
     test        = test_processed,
-    model_type  = "cox" 
+    hazard    = TRUE
   )
     
   results_df <- rbind(
@@ -209,8 +210,7 @@ for (pair in event_pairs) {
 
   cindex_value <- concordanceIndex(
     predictions = predictions,
-    test        = test_processed,
-    model_type  = "aft" 
+    test        = test_processed
   )
   
   results_df <- rbind(
@@ -227,7 +227,50 @@ for (pair in event_pairs) {
 print(results_df)
 ```
 
+# Random Survival Forest:
+```{r}
+for (pair in event_pairs){
+  # Extract indexEvent and outcomeEvent from the pair
+  indexEvent <- pair[1]
+  outcomeEvent <- pair[2]
+  
+  #  Source needed scripts
+  source("~/DMLR_DeFi_Survival_Benchmark/dataLoader.R")
+  source("~/DMLR_DeFi_Survival_Benchmark/dataPreprocessing.R")      
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/random_survival_forest.R") 
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/concordanceIndex.R") 
+  
+  # Preprocess
+  proc_list <- preprocess(train, test, useScaling = FALSE, useOneHotEncoding = FALSE, usePCA = FALSE)
+  train_processed <- as.data.frame(proc_list[[1]])
+  test_processed  <- as.data.frame(proc_list[[2]])
+  
+  # Train the RSF model
+  results <- random_survival_forest(train_processed, test_processed)
+  
+  # Extract the model and predictions
+  rsf_model     <- results[[2]]
+  predictions <- results[[1]]
 
+  cindex_value <- concordanceIndex(
+    predictions = predictions,
+    test        = test_processed
+  )
+ 
+  results_df <- rbind(
+    results_df,
+    data.frame(
+      indexEvent   = indexEvent,
+      outcomeEvent = outcomeEvent,
+      CIndex       = cindex_value,
+      Model        = "RSF", 
+      stringsAsFactors = FALSE
+    )
+  )
+}
+print(results_df)
+
+```
 
 
 # GBM

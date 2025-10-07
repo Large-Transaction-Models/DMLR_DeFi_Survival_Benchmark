@@ -10,10 +10,6 @@ cox_regression <- function(train, test, features = NULL){
     library(tidyverse)
   }
   
-  # Confirm both train and test do not have rows with timeDiff = 0
-  train <- train[train$timeDiff > 0,]
-  test <- test[test$timeDiff > 0,]
-  
   
   if (!is.null(features)) {
     train <- train %>% select(any_of(c(features, "timeDiff", "status")))
@@ -36,7 +32,7 @@ cox_regression <- function(train, test, features = NULL){
   
   
   # Predict using the trained Cox model and the data found in test.X
-  cox_predictions = predict(coxModel, newdata = test, type="survival")
+  cox_predictions = predict(coxModel, newdata = test, type="lp")
   
   l <- list(cox_predictions, coxModel)
   
