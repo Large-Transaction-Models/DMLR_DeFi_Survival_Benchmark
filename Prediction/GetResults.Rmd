@@ -245,6 +245,10 @@ for (pair in event_pairs){
   train_processed <- as.data.frame(proc_list[[1]])
   test_processed  <- as.data.frame(proc_list[[2]])
   
+  train <- train_processed %>%
+    slice_sample(prop = 0.50)
+  test <- test_processed %>%
+    slice_sample(prop = 0.50)
   # Train the RSF model
   results <- random_survival_forest(train_processed, test_processed)
   
@@ -254,7 +258,8 @@ for (pair in event_pairs){
 
   cindex_value <- concordanceIndex(
     predictions = predictions,
-    test        = test_processed
+    test        = test_processed,
+    hazard = TRUE
   )
  
   results_df <- rbind(
