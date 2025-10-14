@@ -1,0 +1,5477 @@
+{
+  "model": "DeepSurv",
+  "package": "pycox",
+  "index": "withdraw",
+  "trials": {
+    "borrow": [
+      {
+        "timestamp": "2025-10-06T22:17:27.980657",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8979700614585377,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:21:23.016816",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8934197957934912,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:21:52.153500",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16,
+            32,
+            32,
+            64,
+            256,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.6486840814631698,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:22:22.456251",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            64,
+            512,
+            128,
+            16,
+            16,
+            16
+          ],
+          "dropout": 0.5,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.3121124655587613,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:22:39.633574",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            16,
+            64,
+            64,
+            256,
+            128,
+            32,
+            256
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.7081526390871479,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:23:37.743009",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            512,
+            512,
+            256,
+            128,
+            256,
+            512,
+            128,
+            64,
+            256,
+            16,
+            512,
+            32,
+            512,
+            16,
+            128
+          ],
+          "dropout": 0.5,
+          "activation": "SELU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.7255108664937399,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:23:53.942311",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            128,
+            128
+          ],
+          "dropout": 0.4,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8875529407884692,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:24:50.735496",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16,
+            64,
+            32,
+            128,
+            256,
+            256,
+            512,
+            16,
+            512,
+            64,
+            128,
+            512,
+            512,
+            32,
+            256
+          ],
+          "dropout": 0.3,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.8085098047762297,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:25:07.304797",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            128
+          ],
+          "dropout": 0.1,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8868686281573188,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:26:09.323650",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            256,
+            16,
+            256,
+            64,
+            512,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 256,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8884203101409733,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:27:07.561535",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            64,
+            64,
+            128,
+            16,
+            256,
+            64,
+            128,
+            64,
+            16,
+            512,
+            512,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.5,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.8005124107174195,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:27:25.501943",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            128,
+            256,
+            64,
+            32,
+            512,
+            64,
+            128,
+            64,
+            32,
+            256,
+            64,
+            256,
+            16,
+            512
+          ],
+          "dropout": 0.1,
+          "activation": "SiLU",
+          "batch_size": 4096,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": 0.8415693396665849,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:27:49.116315",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            16,
+            64,
+            128,
+            512,
+            512,
+            512,
+            512,
+            512
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.892348900119477,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:29:37.200833",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            256,
+            32,
+            64,
+            256,
+            16,
+            256,
+            512,
+            64,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8918125336892183,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:30:37.337555",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            256,
+            16,
+            32,
+            256
+          ],
+          "dropout": 0.1,
+          "activation": "SiLU",
+          "batch_size": 256,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.6573797419461623,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:30:47.440517",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            64,
+            16
+          ],
+          "dropout": 0.2,
+          "activation": "ELU",
+          "batch_size": 4096,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": 0.896309666856888,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:32:58.257022",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            64,
+            512,
+            256,
+            128,
+            64,
+            128,
+            32,
+            256,
+            32,
+            256,
+            512,
+            16,
+            256,
+            256,
+            128,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.7910682071887101,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:35:20.474986",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            64,
+            64,
+            32,
+            128,
+            64,
+            32,
+            32,
+            128,
+            16,
+            128,
+            128,
+            256,
+            64,
+            32,
+            256
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8903048940837948,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:35:40.944990",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16
+          ],
+          "dropout": 0.4,
+          "activation": "LeakyReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8804990780499938,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:35:55.906043",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            512,
+            128,
+            64,
+            128,
+            256,
+            256
+          ],
+          "dropout": 0.2,
+          "activation": "Tanh",
+          "batch_size": 2048,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8867073648940311,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:36:26.301766",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            128,
+            512
+          ],
+          "dropout": 0.3,
+          "activation": "GELU",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8499810676865157,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:36:37.335767",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            64,
+            32,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.824868810586373,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:36:49.173606",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            512,
+            16,
+            64,
+            64,
+            32,
+            128,
+            64
+          ],
+          "dropout": 0.3,
+          "activation": "ReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8897159616701368,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:37:21.958357",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            64,
+            256,
+            32,
+            512
+          ],
+          "dropout": 0.4,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.887555118500867,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:37:55.669361",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            16,
+            16,
+            128,
+            256,
+            256
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": 0.8965996992054197,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:38:06.699828",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            128
+          ],
+          "dropout": 0.5,
+          "activation": "LeakyReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8718285026425854,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:39:13.077454",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            32,
+            16,
+            32,
+            32
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": 0.8747294159478354,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:39:46.341123",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            32,
+            512,
+            128,
+            512,
+            64,
+            32,
+            64,
+            16
+          ],
+          "dropout": 0.2,
+          "activation": "GELU",
+          "batch_size": 1024,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8685243073786815,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:40:00.479434",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            32,
+            128,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "GELU",
+          "batch_size": 2048,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8972465841663742,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:40:36.051308",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            64,
+            32,
+            128,
+            512,
+            512,
+            16,
+            32,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8091955042112872,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:40:57.250111",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            32,
+            128,
+            16,
+            16,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "ELU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8253755908042354,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:41:32.447441",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            128,
+            32,
+            16,
+            32,
+            16,
+            64,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8599303092631695,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:41:53.718291",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            32,
+            16,
+            128,
+            512,
+            16,
+            32
+          ],
+          "dropout": 0.5,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8669026160000599,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:42:14.844619",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            32,
+            16,
+            512,
+            16,
+            64,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "LeakyReLU",
+          "batch_size": 1024,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.5714853566007976,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:42:26.247577",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            32,
+            64
+          ],
+          "dropout": 0.1,
+          "activation": "Tanh",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7223668963821551,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:43:37.752913",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            32,
+            128,
+            16,
+            256,
+            64
+          ],
+          "dropout": 0.2,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:43:51.404095",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            512,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8935778536912129,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:44:50.270338",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            32,
+            32,
+            512,
+            64,
+            128,
+            128,
+            64,
+            512,
+            256,
+            256,
+            32,
+            128,
+            16,
+            64,
+            512
+          ],
+          "dropout": 0.0,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.8036785390153026,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:45:09.138230",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            256,
+            16,
+            64
+          ],
+          "dropout": 0.0,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8686179551868691,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:45:20.832138",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            256,
+            64,
+            256,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "GELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8795748076073066,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:46:22.308077",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            32,
+            16,
+            16,
+            16,
+            256,
+            16,
+            128,
+            128,
+            64,
+            512,
+            32,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.69244480743002,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:46:46.406843",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            64,
+            128,
+            32
+          ],
+          "dropout": 0.3,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8868374757648423,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:46:59.617517",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            256,
+            16,
+            512,
+            512,
+            256,
+            512,
+            32
+          ],
+          "dropout": 0.2,
+          "activation": "SELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.885302640102162,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:47:31.840260",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            32,
+            128,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "ReLU",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8957588052183403,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:47:46.229673",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            256,
+            32
+          ],
+          "dropout": 0.3,
+          "activation": "ELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8954867219409162,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:49:46.512708",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            64,
+            512,
+            16,
+            32,
+            512,
+            16,
+            32
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.7713022633070226,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:50:44.132585",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            64,
+            512,
+            32,
+            512,
+            512,
+            128,
+            128,
+            512,
+            512,
+            16,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8411039375778503,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:51:49.304155",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            64,
+            128,
+            32,
+            256,
+            256,
+            512,
+            256,
+            16,
+            16,
+            256,
+            256,
+            512,
+            32,
+            256,
+            256,
+            512,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8470186904034505,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:53:48.608503",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            512,
+            64,
+            256,
+            256,
+            256,
+            512,
+            64
+          ],
+          "dropout": 0.1,
+          "activation": "Tanh",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.8565598057691928,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:54:44.772385",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            512,
+            32,
+            16,
+            512,
+            256,
+            16,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "LeakyReLU",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": 0.8862559327332203,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:56:57.316146",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            128,
+            64,
+            64,
+            256,
+            512,
+            128,
+            512,
+            64,
+            64,
+            512,
+            128,
+            32,
+            32,
+            16,
+            512
+          ],
+          "dropout": 0.5,
+          "activation": "SiLU",
+          "batch_size": 256,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": 0.6405745429347252,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      }
+    ],
+    "repay": [
+      {
+        "timestamp": "2025-10-06T22:58:39.827661",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:59:13.342829",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16,
+            32,
+            32,
+            64,
+            256,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T22:59:46.171859",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            64,
+            512,
+            128,
+            16,
+            16,
+            16
+          ],
+          "dropout": 0.5,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:00:05.391248",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            16,
+            64,
+            64,
+            256,
+            128,
+            32,
+            256
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.6420198665130102,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:01:02.378071",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            512,
+            512,
+            256,
+            128,
+            256,
+            512,
+            128,
+            64,
+            256,
+            16,
+            512,
+            32,
+            512,
+            16,
+            128
+          ],
+          "dropout": 0.5,
+          "activation": "SELU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:01:21.430511",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            128,
+            128
+          ],
+          "dropout": 0.4,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:02:22.974066",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16,
+            64,
+            32,
+            128,
+            256,
+            256,
+            512,
+            16,
+            512,
+            64,
+            128,
+            512,
+            512,
+            32,
+            256
+          ],
+          "dropout": 0.3,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:02:40.609678",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            128
+          ],
+          "dropout": 0.1,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:03:51.904592",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            256,
+            16,
+            256,
+            64,
+            512,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 256,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:04:52.769381",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            64,
+            64,
+            128,
+            16,
+            256,
+            64,
+            128,
+            64,
+            16,
+            512,
+            512,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.5,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:05:14.409388",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            128,
+            256,
+            64,
+            32,
+            512,
+            64,
+            128,
+            64,
+            32,
+            256,
+            64,
+            256,
+            16,
+            512
+          ],
+          "dropout": 0.1,
+          "activation": "SiLU",
+          "batch_size": 4096,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": 0.8004526803419124,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:05:41.522763",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            16,
+            64,
+            128,
+            512,
+            512,
+            512,
+            512,
+            512
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8791709722591957,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:07:38.083490",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            256,
+            32,
+            64,
+            256,
+            16,
+            256,
+            512,
+            64,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:08:46.592012",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            256,
+            16,
+            32,
+            256
+          ],
+          "dropout": 0.1,
+          "activation": "SiLU",
+          "batch_size": 256,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:08:57.714933",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            64,
+            16
+          ],
+          "dropout": 0.2,
+          "activation": "ELU",
+          "batch_size": 4096,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": 0.866553156557159,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:11:14.128918",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            64,
+            512,
+            256,
+            128,
+            64,
+            128,
+            32,
+            256,
+            32,
+            256,
+            512,
+            16,
+            256,
+            256,
+            128,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:13:30.853336",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            64,
+            64,
+            32,
+            128,
+            64,
+            32,
+            32,
+            128,
+            16,
+            128,
+            128,
+            256,
+            64,
+            32,
+            256
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:13:48.757447",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16
+          ],
+          "dropout": 0.4,
+          "activation": "LeakyReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:14:03.445011",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            512,
+            128,
+            64,
+            128,
+            256,
+            256
+          ],
+          "dropout": 0.2,
+          "activation": "Tanh",
+          "batch_size": 2048,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8724962448684948,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:14:30.976142",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            128,
+            512
+          ],
+          "dropout": 0.3,
+          "activation": "GELU",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:14:42.107220",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            64,
+            32,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8600387660081867,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:14:53.934880",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            512,
+            16,
+            64,
+            64,
+            32,
+            128,
+            64
+          ],
+          "dropout": 0.3,
+          "activation": "ReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8854467774809992,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:15:26.734836",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            64,
+            256,
+            32,
+            512
+          ],
+          "dropout": 0.4,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:16:00.337356",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            16,
+            16,
+            128,
+            256,
+            256
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:16:11.948838",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            128
+          ],
+          "dropout": 0.5,
+          "activation": "LeakyReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.862919484557044,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:17:19.936810",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            32,
+            16,
+            32,
+            32
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:17:53.706286",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            32,
+            512,
+            128,
+            512,
+            64,
+            32,
+            64,
+            16
+          ],
+          "dropout": 0.2,
+          "activation": "GELU",
+          "batch_size": 1024,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:18:08.062383",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            32,
+            128,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "GELU",
+          "batch_size": 2048,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8807964203818378,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:18:41.743847",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            64,
+            32,
+            128,
+            512,
+            512,
+            16,
+            32,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:19:01.514395",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            32,
+            128,
+            16,
+            16,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "ELU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:19:33.758600",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            128,
+            32,
+            16,
+            32,
+            16,
+            64,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:19:54.928046",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            32,
+            16,
+            128,
+            512,
+            16,
+            32
+          ],
+          "dropout": 0.5,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:20:16.698875",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            32,
+            16,
+            512,
+            16,
+            64,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "LeakyReLU",
+          "batch_size": 1024,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:20:28.750161",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            32,
+            64
+          ],
+          "dropout": 0.1,
+          "activation": "Tanh",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7534628378766773,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:21:41.645239",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            32,
+            128,
+            16,
+            256,
+            64
+          ],
+          "dropout": 0.2,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:21:56.371723",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            512,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8807350346022264,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:22:55.436578",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            32,
+            32,
+            512,
+            64,
+            128,
+            128,
+            64,
+            512,
+            256,
+            256,
+            32,
+            128,
+            16,
+            64,
+            512
+          ],
+          "dropout": 0.0,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:23:14.018821",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            256,
+            16,
+            64
+          ],
+          "dropout": 0.0,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:23:26.415261",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            256,
+            64,
+            256,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "GELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.784729907536125,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:24:31.931949",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            32,
+            16,
+            16,
+            16,
+            256,
+            16,
+            128,
+            128,
+            64,
+            512,
+            32,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:24:52.281800",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            64,
+            128,
+            32
+          ],
+          "dropout": 0.3,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:25:05.561149",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            256,
+            16,
+            512,
+            512,
+            256,
+            512,
+            32
+          ],
+          "dropout": 0.2,
+          "activation": "SELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8674371995116211,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:25:37.677923",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            32,
+            128,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "ReLU",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:25:52.441560",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            256,
+            32
+          ],
+          "dropout": 0.3,
+          "activation": "ELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8787307524514415,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:27:49.742448",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            64,
+            512,
+            16,
+            32,
+            512,
+            16,
+            32
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:28:43.832097",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            64,
+            512,
+            32,
+            512,
+            512,
+            128,
+            128,
+            512,
+            512,
+            16,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:29:51.990465",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            64,
+            128,
+            32,
+            256,
+            256,
+            512,
+            256,
+            16,
+            16,
+            256,
+            256,
+            512,
+            32,
+            256,
+            256,
+            512,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:31:34.157548",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            512,
+            64,
+            256,
+            256,
+            256,
+            512,
+            64
+          ],
+          "dropout": 0.1,
+          "activation": "Tanh",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:32:08.753111",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            512,
+            32,
+            16,
+            512,
+            256,
+            16,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "LeakyReLU",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:34:16.475379",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            128,
+            64,
+            64,
+            256,
+            512,
+            128,
+            512,
+            64,
+            64,
+            512,
+            128,
+            32,
+            32,
+            16,
+            512
+          ],
+          "dropout": 0.5,
+          "activation": "SiLU",
+          "batch_size": 256,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      }
+    ],
+    "account liquidated": [
+      {
+        "timestamp": "2025-10-07T00:12:56.635803",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:13:08.632048",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16,
+            32,
+            32,
+            64,
+            256,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:13:20.691832",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            64,
+            512,
+            128,
+            16,
+            16,
+            16
+          ],
+          "dropout": 0.5,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:13:33.837945",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            16,
+            64,
+            64,
+            256,
+            128,
+            32,
+            256
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.6060881128827812,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:13:53.834429",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            512,
+            512,
+            256,
+            128,
+            256,
+            512,
+            128,
+            64,
+            256,
+            16,
+            512,
+            32,
+            512,
+            16,
+            128
+          ],
+          "dropout": 0.5,
+          "activation": "SELU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:14:03.597141",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            128,
+            128
+          ],
+          "dropout": 0.4,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8023949123750058,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:14:23.776504",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16,
+            64,
+            32,
+            128,
+            256,
+            256,
+            512,
+            16,
+            512,
+            64,
+            128,
+            512,
+            512,
+            32,
+            256
+          ],
+          "dropout": 0.3,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:14:33.050201",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            128
+          ],
+          "dropout": 0.1,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.5378448285354349,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:14:49.717498",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            256,
+            16,
+            256,
+            64,
+            512,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 256,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:15:09.851419",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            64,
+            64,
+            128,
+            16,
+            256,
+            64,
+            128,
+            64,
+            16,
+            512,
+            512,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.5,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:15:23.719859",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            128,
+            256,
+            64,
+            32,
+            512,
+            64,
+            128,
+            64,
+            32,
+            256,
+            64,
+            256,
+            16,
+            512
+          ],
+          "dropout": 0.1,
+          "activation": "SiLU",
+          "batch_size": 4096,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": 0.534284663096656,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:15:38.358824",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            16,
+            64,
+            128,
+            512,
+            512,
+            512,
+            512,
+            512
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.6514490340273316,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:16:06.809697",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            256,
+            32,
+            64,
+            256,
+            16,
+            256,
+            512,
+            64,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:16:23.879544",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            256,
+            16,
+            32,
+            256
+          ],
+          "dropout": 0.1,
+          "activation": "SiLU",
+          "batch_size": 256,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:16:32.335245",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            64,
+            16
+          ],
+          "dropout": 0.2,
+          "activation": "ELU",
+          "batch_size": 4096,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": 0.6514748603390597,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:17:06.588086",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            64,
+            512,
+            256,
+            128,
+            64,
+            128,
+            32,
+            256,
+            32,
+            256,
+            512,
+            16,
+            256,
+            256,
+            128,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:17:40.701993",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            64,
+            64,
+            32,
+            128,
+            64,
+            32,
+            32,
+            128,
+            16,
+            128,
+            128,
+            256,
+            64,
+            32,
+            256
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:17:50.737475",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16
+          ],
+          "dropout": 0.4,
+          "activation": "LeakyReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.6400322981734818,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:18:00.127081",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            512,
+            128,
+            64,
+            128,
+            256,
+            256
+          ],
+          "dropout": 0.2,
+          "activation": "Tanh",
+          "batch_size": 2048,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.7487529656610347,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:18:11.900775",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            128,
+            512
+          ],
+          "dropout": 0.3,
+          "activation": "GELU",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:18:20.492814",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            64,
+            32,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.6489800776723815,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:18:29.290141",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            512,
+            16,
+            64,
+            64,
+            32,
+            128,
+            64
+          ],
+          "dropout": 0.3,
+          "activation": "ReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.6769011487152994,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:18:41.273861",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            64,
+            256,
+            32,
+            512
+          ],
+          "dropout": 0.4,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:18:53.446326",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            16,
+            16,
+            128,
+            256,
+            256
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:19:02.053433",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            128
+          ],
+          "dropout": 0.5,
+          "activation": "LeakyReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.6871337174972102,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:19:20.154337",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            32,
+            16,
+            32,
+            32
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:19:36.655770",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            32,
+            512,
+            128,
+            512,
+            64,
+            32,
+            64,
+            16
+          ],
+          "dropout": 0.2,
+          "activation": "GELU",
+          "batch_size": 1024,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.5591425048690964,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:19:45.676945",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            32,
+            128,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "GELU",
+          "batch_size": 2048,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.6210598098668046,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:20:01.848194",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            64,
+            32,
+            128,
+            512,
+            512,
+            16,
+            32,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.5491983484949402,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:20:12.106193",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            32,
+            128,
+            16,
+            16,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "ELU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8041497516875431,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:20:23.895209",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            128,
+            32,
+            16,
+            32,
+            16,
+            64,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:20:34.256930",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            32,
+            16,
+            128,
+            512,
+            16,
+            32
+          ],
+          "dropout": 0.5,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.3737326853126836,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:20:44.491448",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            32,
+            16,
+            512,
+            16,
+            64,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "LeakyReLU",
+          "batch_size": 1024,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.4551863902767138,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:20:52.826393",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            32,
+            64
+          ],
+          "dropout": 0.1,
+          "activation": "Tanh",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.5375205326150785,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:21:11.720558",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            32,
+            128,
+            16,
+            256,
+            64
+          ],
+          "dropout": 0.2,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:21:20.989690",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            512,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.725773834670796,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:21:41.387094",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            32,
+            32,
+            512,
+            64,
+            128,
+            128,
+            64,
+            512,
+            256,
+            256,
+            32,
+            128,
+            16,
+            64,
+            512
+          ],
+          "dropout": 0.0,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:21:51.589055",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            256,
+            16,
+            64
+          ],
+          "dropout": 0.0,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.7832870953104806,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:22:00.396480",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            256,
+            64,
+            256,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "GELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.5646363693797135,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:22:21.256634",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            32,
+            16,
+            16,
+            16,
+            256,
+            16,
+            128,
+            128,
+            64,
+            512,
+            32,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:22:31.190740",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            64,
+            128,
+            32
+          ],
+          "dropout": 0.3,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7029977944329784,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:22:40.102348",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            256,
+            16,
+            512,
+            512,
+            256,
+            512,
+            32
+          ],
+          "dropout": 0.2,
+          "activation": "SELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.7406506157756907,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:22:51.925820",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            32,
+            128,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "ReLU",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:23:00.961497",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            256,
+            32
+          ],
+          "dropout": 0.3,
+          "activation": "ELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8169271492849063,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:23:31.752066",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            64,
+            512,
+            16,
+            32,
+            512,
+            16,
+            32
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:23:51.613200",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            64,
+            512,
+            32,
+            512,
+            512,
+            128,
+            128,
+            512,
+            512,
+            16,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:24:13.525044",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            64,
+            128,
+            32,
+            256,
+            256,
+            512,
+            256,
+            16,
+            16,
+            256,
+            256,
+            512,
+            32,
+            256,
+            256,
+            512,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:24:45.321103",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            512,
+            64,
+            256,
+            256,
+            256,
+            512,
+            64
+          ],
+          "dropout": 0.1,
+          "activation": "Tanh",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:25:05.021675",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            512,
+            32,
+            16,
+            512,
+            256,
+            16,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "LeakyReLU",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:25:39.558554",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            128,
+            64,
+            64,
+            256,
+            512,
+            128,
+            512,
+            64,
+            64,
+            512,
+            128,
+            32,
+            32,
+            16,
+            512
+          ],
+          "dropout": 0.5,
+          "activation": "SiLU",
+          "batch_size": 256,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": -1.0,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      }
+    ],
+    "deposit": [
+      {
+        "timestamp": "2025-10-06T23:35:32.134282",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8225464623772978,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:36:05.139142",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16,
+            32,
+            32,
+            64,
+            256,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7396079117099916,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:36:39.197486",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            64,
+            512,
+            128,
+            16,
+            16,
+            16
+          ],
+          "dropout": 0.5,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.6153085495636094,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:36:57.994341",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            16,
+            64,
+            64,
+            256,
+            128,
+            32,
+            256
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.4185162629986315,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:38:00.107909",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            512,
+            512,
+            256,
+            128,
+            256,
+            512,
+            128,
+            64,
+            256,
+            16,
+            512,
+            32,
+            512,
+            16,
+            128
+          ],
+          "dropout": 0.5,
+          "activation": "SELU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.5098846209440525,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:38:19.658725",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            128,
+            128
+          ],
+          "dropout": 0.4,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8276737994867527,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:39:23.351066",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            16,
+            64,
+            32,
+            128,
+            256,
+            256,
+            512,
+            16,
+            512,
+            64,
+            128,
+            512,
+            512,
+            32,
+            256
+          ],
+          "dropout": 0.3,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.7904769546273263,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:39:44.186806",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            128
+          ],
+          "dropout": 0.1,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7909096567293924,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:40:49.814274",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            256,
+            16,
+            256,
+            64,
+            512,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 256,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.793700276098375,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:41:52.713616",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            64,
+            64,
+            128,
+            16,
+            256,
+            64,
+            128,
+            64,
+            16,
+            512,
+            512,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.5,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.7375612221766664,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:42:13.715886",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            128,
+            256,
+            64,
+            32,
+            512,
+            64,
+            128,
+            64,
+            32,
+            256,
+            64,
+            256,
+            16,
+            512
+          ],
+          "dropout": 0.1,
+          "activation": "SiLU",
+          "batch_size": 4096,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": 0.7357310142887267,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:42:39.874508",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            16,
+            64,
+            128,
+            512,
+            512,
+            512,
+            512,
+            512
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8120340424537535,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:44:33.957694",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            256,
+            32,
+            64,
+            256,
+            16,
+            256,
+            512,
+            64,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8139511015867428,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:45:43.156635",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            256,
+            16,
+            32,
+            256
+          ],
+          "dropout": 0.1,
+          "activation": "SiLU",
+          "batch_size": 256,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8349755136010526,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:45:54.806287",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            64,
+            16
+          ],
+          "dropout": 0.2,
+          "activation": "ELU",
+          "batch_size": 4096,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": 0.8060685176261911,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:48:15.904076",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            64,
+            512,
+            256,
+            128,
+            64,
+            128,
+            32,
+            256,
+            32,
+            256,
+            512,
+            16,
+            256,
+            256,
+            128,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.6140920579941525,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:50:33.014337",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            64,
+            64,
+            32,
+            128,
+            64,
+            32,
+            32,
+            128,
+            16,
+            128,
+            128,
+            256,
+            64,
+            32,
+            256
+          ],
+          "dropout": 0.3,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.8146986841249099,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:50:52.609948",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16
+          ],
+          "dropout": 0.4,
+          "activation": "LeakyReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.6098892059555678,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:51:07.637084",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            512,
+            128,
+            64,
+            128,
+            256,
+            256
+          ],
+          "dropout": 0.2,
+          "activation": "Tanh",
+          "batch_size": 2048,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8195226683722924,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:51:40.194860",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            128,
+            512
+          ],
+          "dropout": 0.3,
+          "activation": "GELU",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8046391510325119,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:51:52.083088",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            64,
+            32,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7709371651384562,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:52:04.433632",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            512,
+            16,
+            64,
+            64,
+            32,
+            128,
+            64
+          ],
+          "dropout": 0.3,
+          "activation": "ReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8133662640724367,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:52:37.855390",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            64,
+            256,
+            32,
+            512
+          ],
+          "dropout": 0.4,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.814624942060975,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:53:11.827416",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            16,
+            16,
+            128,
+            256,
+            256
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": 0.8181009795905374,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:53:23.846254",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            128
+          ],
+          "dropout": 0.5,
+          "activation": "LeakyReLU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.7650928975565238,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:54:33.039617",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            32,
+            16,
+            32,
+            32
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": 0.8243090446526171,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:55:07.051982",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            32,
+            512,
+            128,
+            512,
+            64,
+            32,
+            64,
+            16
+          ],
+          "dropout": 0.2,
+          "activation": "GELU",
+          "batch_size": 1024,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.753944113935968,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:55:21.367113",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            32,
+            128,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "GELU",
+          "batch_size": 2048,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8087861986522169,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:55:55.853885",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            64,
+            32,
+            128,
+            512,
+            512,
+            16,
+            32,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.7503087746577027,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:56:17.253279",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            32,
+            128,
+            16,
+            16,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "ELU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.7523999457909668,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:56:52.592144",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            32,
+            128,
+            32,
+            16,
+            32,
+            16,
+            64,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7878247598668012,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:57:13.334977",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            16,
+            32,
+            16,
+            128,
+            512,
+            16,
+            32
+          ],
+          "dropout": 0.5,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.7726127019491347,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:57:34.292289",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            32,
+            16,
+            512,
+            16,
+            64,
+            64
+          ],
+          "dropout": 0.5,
+          "activation": "LeakyReLU",
+          "batch_size": 1024,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.4571162770688881,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:57:45.604882",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            32,
+            64
+          ],
+          "dropout": 0.1,
+          "activation": "Tanh",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7075810564145072,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:58:58.327709",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            32,
+            128,
+            16,
+            256,
+            64
+          ],
+          "dropout": 0.2,
+          "activation": "SELU",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 5
+        },
+        "c_index": 0.8320217921922906,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-06T23:59:13.411106",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            512,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "SELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7894651458630896,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:00:14.759709",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            32,
+            32,
+            512,
+            64,
+            128,
+            128,
+            64,
+            512,
+            256,
+            256,
+            32,
+            128,
+            16,
+            64,
+            512
+          ],
+          "dropout": 0.0,
+          "activation": "SiLU",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.8194899800241248,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:00:35.371541",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            512,
+            256,
+            16,
+            64
+          ],
+          "dropout": 0.0,
+          "activation": "ReLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8300053333964003,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:00:47.441270",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            16,
+            256,
+            64,
+            256,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "GELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.7464521231630118,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:01:48.953628",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            32,
+            16,
+            16,
+            16,
+            256,
+            16,
+            128,
+            128,
+            64,
+            512,
+            32,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.7275915140877757,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:02:09.639804",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            64,
+            128,
+            32
+          ],
+          "dropout": 0.3,
+          "activation": "SiLU",
+          "batch_size": 1024,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 5
+        },
+        "c_index": 0.8004173641412069,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:02:23.211390",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            256,
+            16,
+            512,
+            512,
+            256,
+            512,
+            32
+          ],
+          "dropout": 0.2,
+          "activation": "SELU",
+          "batch_size": 4096,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.816908422287627,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:02:56.776269",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            32,
+            128,
+            32,
+            128,
+            16
+          ],
+          "dropout": 0.3,
+          "activation": "ReLU",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.819541716367086,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:03:11.946736",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            256,
+            32
+          ],
+          "dropout": 0.3,
+          "activation": "ELU",
+          "batch_size": 2048,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.001,
+          "epochs": 5
+        },
+        "c_index": 0.8067971567916274,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:05:07.455198",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            16,
+            256,
+            64,
+            512,
+            16,
+            32,
+            512,
+            16,
+            32
+          ],
+          "dropout": 0.5,
+          "activation": "ELU",
+          "batch_size": 256,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.6517312587686835,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:06:04.032299",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            128,
+            64,
+            512,
+            32,
+            512,
+            512,
+            128,
+            128,
+            512,
+            512,
+            16,
+            16
+          ],
+          "dropout": 0.0,
+          "activation": "Tanh",
+          "batch_size": 512,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 1e-05,
+          "epochs": 8
+        },
+        "c_index": 0.7660749560019747,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:07:13.689765",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            64,
+            128,
+            32,
+            256,
+            256,
+            512,
+            256,
+            16,
+            16,
+            256,
+            256,
+            512,
+            32,
+            256,
+            256,
+            512,
+            256
+          ],
+          "dropout": 0.0,
+          "activation": "LeakyReLU",
+          "batch_size": 512,
+          "weight_decay": 0.001,
+          "batch_norm": true,
+          "optimizer": "AdamW",
+          "learning_rate": 5e-05,
+          "epochs": 8
+        },
+        "c_index": 0.68934550883027,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:09:11.312116",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            512,
+            512,
+            64,
+            256,
+            256,
+            256,
+            512,
+            64
+          ],
+          "dropout": 0.1,
+          "activation": "Tanh",
+          "batch_size": 256,
+          "weight_decay": 0.0001,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0005,
+          "epochs": 8
+        },
+        "c_index": 0.8310898259110258,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:10:06.293919",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            64,
+            128,
+            512,
+            32,
+            16,
+            512,
+            256,
+            16,
+            32
+          ],
+          "dropout": 0.4,
+          "activation": "LeakyReLU",
+          "batch_size": 512,
+          "weight_decay": 0.0,
+          "batch_norm": true,
+          "optimizer": "RMSprop",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": 0.806148005750022,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      },
+      {
+        "timestamp": "2025-10-07T00:12:29.956712",
+        "model_arch": "MLPVanilla",
+        "config": {
+          "hidden_sizes": [
+            256,
+            128,
+            64,
+            64,
+            256,
+            512,
+            128,
+            512,
+            64,
+            64,
+            512,
+            128,
+            32,
+            32,
+            16,
+            512
+          ],
+          "dropout": 0.5,
+          "activation": "SiLU",
+          "batch_size": 256,
+          "weight_decay": 1e-05,
+          "batch_norm": true,
+          "optimizer": "Adam",
+          "learning_rate": 0.0001,
+          "epochs": 8
+        },
+        "c_index": 0.6101071041213869,
+        "feature_selection": "MRMR",
+        "feature_count": 40
+      }
+    ],
+    "withdraw": []
+  }
+}
