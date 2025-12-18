@@ -25,3 +25,6 @@ The "Prediction/" directory contains all the code to recreate the results from t
 
 ## Figures_and_Tables/:
 The "Figures_and_Tables/" directory contains the code necessary to recreate the tables of results in the paper, along with the heatmaps. It also contains the file assets for the heatmaps and the Kaplan--Meier survival curves.
+
+## Note:
+Earlier versions of this repository included a classification task that was part of exploratory experimentation. That code has been deprecated and moved to the branch legacy-classification to avoid confusion. The main branch now contains only the code used in the final manuscript.
