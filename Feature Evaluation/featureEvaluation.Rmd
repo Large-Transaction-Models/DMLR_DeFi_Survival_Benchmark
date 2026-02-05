@@ -1,0 +1,144 @@
+---
+title: "featureEvaluation"
+output: html_document
+---
+This notebook is intended to evaluate the features created in the FinSurvival benchmark paper in order to show that most or all of them have at least some predictive value for the dataset as a whole.
+
+The general idea for this feature evaluation is as follows: for each feature/task combination, we run a univariate cox model. From this, we calculate the p-values and come up with some way to summarize the overall results. Perhaps for each feature, we take the minimum p-value across all tasks, since that would represent the best relevancy for each feature across all tasks. Hopefully each feature would be significant for at least one task.
+```{r}
+# Load the necessary libraries
+library(dplyr)
+library(readr)
+library(survival)
+library(stringr)
+```
+
+```{r}
+event_pairs <- list(
+  c("borrow", "repay"),
+  c("borrow", "deposit"),
+  c("borrow", "withdraw"),
+  c("borrow", "account liquidated"),
+  c("repay", "borrow"),
+  c("repay", "deposit"),
+  c("repay", "withdraw"),
+  c("repay", "account liquidated"),
+  c("deposit", "borrow"),
+  c("deposit", "repay"),
+  c("deposit", "withdraw"),
+  c("deposit", "account liquidated"),
+  c("withdraw", "borrow"),
+  c("withdraw", "repay"),
+  c("withdraw", "deposit"),
+  c("withdraw", "account liquidated")
+)
+```
+
+```{r}
+
+feature_results <- data.frame()
+# Loop over each pair
+for (pair in event_pairs) {
+  # Extract indexEvent and outcomeEvent from the pair
+  indexEvent   <- pair[1]
+  outcomeEvent <- pair[2]
+  
+  #  Source needed scripts
+  source("~/DMLR_DeFi_Survival_Benchmark/dataLoader.R")
+  source("~/DMLR_DeFi_Survival_Benchmark/dataPreprocessing.R")      
+  
+  source("~/DMLR_DeFi_Survival_Benchmark/Prediction/cox_regression.R") 
+  
+  # Preprocess
+  proc_list <- preprocess(train, test, usePCA = FALSE)
+  train_processed <- as.data.frame(proc_list[[1]])
+  test_processed  <- as.data.frame(proc_list[[2]])
+  
+  # Identify feature columns (exclude survival outcome + obvious non-features)
+  feature_cols <- setdiff(
+    colnames(train_processed),
+    c("timeDiff", "status")
+  )
+  
+  
+  for (feature in feature_cols) {
+  
+    # Subset and drop missing values
+    df <- train_processed %>%
+      select(timeDiff, status, all_of(feature)) %>%
+      filter(complete.cases(.))
+  
+    # Skip features with no variation
+    if (nrow(df) == 0 || length(unique(df[[feature]])) < 2) {
+      next
+    }
+  
+    # Construct univariate Cox formula
+    fml <- as.formula(
+      paste0("Surv(timeDiff, status) ~ ", feature)
+    )
+  
+    # Fit Cox model safely
+    fit <- tryCatch(
+      coxph(fml, data = df),
+      error = function(e) NULL
+    )
+  
+    if (is.null(fit)) {
+      next
+    }
+  
+    s <- summary(fit)
+  
+    # Store results
+    feature_results <- rbind(
+      feature_results,
+      data.frame(
+        indexEvent   = indexEvent,
+        outcomeEvent = outcomeEvent,
+        feature      = feature,
+        coef         = s$coef[1, "coef"],
+        hr           = s$coef[1, "exp(coef)"],
+        se           = s$coef[1, "se(coef)"],
+        z            = s$coef[1, "z"],
+        p            = s$coef[1, "Pr(>|z|)"],
+        n            = fit$n,
+        n_events     = fit$nevent,
+        stringsAsFactors = FALSE
+      )
+    )
+  }
+}
+```
+```{r}
+saveRDS(feature_results, "./feature_results.rds")
+```
+
+```{r}
+effect_threshold <- 0.1   # ≈ HR ≤ 0.90 or ≥ 1.11
+alpha <- 0.005
+
+feature_results <- feature_results %>%
+  group_by(indexEvent, outcomeEvent) %>%
+  mutate(q = p.adjust(p, method = "BH")) %>%
+  ungroup()
+
+feature_results <- feature_results %>%
+  mutate(
+    log_hr = log(hr),
+    non_negligible = abs(log_hr) >= effect_threshold,
+    detectable = (p < alpha) & non_negligible
+  )
+
+feature_summary <- feature_results %>%
+  group_by(feature) %>%
+  summarise(
+    shows_signal = any(detectable),
+    n_tasks_signal = sum(detectable),
+    min_q = min(q, na.rm = TRUE),
+    max_abs_log_hr = max(abs(log_hr), na.rm = TRUE),
+    .groups = "drop"
+  )
+
+write_csv(feature_summary, "feature_summary.csv")
+```
