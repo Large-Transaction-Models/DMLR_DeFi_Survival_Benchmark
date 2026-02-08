@@ -127,7 +127,7 @@ feature_results <- feature_results %>%
   mutate(
     log_hr = log(hr),
     non_negligible = abs(log_hr) >= effect_threshold,
-    detectable = (p < alpha) & non_negligible
+    detectable = (q < alpha) & non_negligible
   )
 
 feature_summary <- feature_results %>%
@@ -141,4 +141,89 @@ feature_summary <- feature_results %>%
   )
 
 write_csv(feature_summary, "feature_summary.csv")
+```
+
+```{r}
+# Label features by category:
+time_features <- c(
+  "timeOfDay",
+  "dayOfWeek",
+  "dayOfMonth",
+  "dayOfYear",
+  "quarter",
+  "dayOfQuarter",
+  "sinTimeOfDay",
+  "cosTimeOfDay",
+  "sinDayOfWeek",
+  "cosDayOfWeek",
+  "sinDayOfMonth",
+  "cosDayOfMonth",
+  "sinDayOfQuarter",
+  "cosDayOfQuarter",
+  "sinDayOfYear",
+  "cosDayOfYear",
+  "sinQuarter",
+  "cosQuarter",
+  "isWeekend_TRUE"
+)
+feature_summary <- feature_summary %>%
+  mutate(
+    feature_category = case_when(
+      grepl("^user", feature) ~ "user",
+      grepl("^market", feature) ~ "market",
+      feature %in% time_features ~ "time",
+      TRUE ~ "raw"
+    )
+  )
+```
+
+```{r}
+
+cap_value <- quantile(
+  feature_summary$max_abs_log_hr[is.finite(feature_summary$max_abs_log_hr)],
+  0.99,
+  na.rm = TRUE
+)
+
+feature_summary <- feature_summary %>%
+  mutate(
+    max_abs_log_hr_plot = pmin(max_abs_log_hr, cap_value)
+  )
+
+# Let's make a density plot of features based on their max_abs_log_hr
+library(ggplot2)
+plot <- ggplot(
+  feature_summary,
+  aes(
+    x = feature_category,
+    y = max_abs_log_hr_plot,
+    color = feature_category
+  )
+) +
+  geom_boxplot(width = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.35, size = 0.9) +
+  geom_hline(
+    yintercept = 0.1,
+    linetype = "dashed",
+    linewidth = 0.9,
+    color = "black"
+  ) +
+  scale_y_sqrt() +
+  labs(
+    x = "Feature category",
+    y = "Maximum |log(Hazard Ratio)| across tasks",
+    color = "Feature category"
+  ) + scale_color_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    legend.position = "none"
+  )
+
+
+plot
+
+```
+
+```{r}
+ggsave("featureEvalPlot.pdf", plot)
 ```
